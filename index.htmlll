@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光電板光學效率模擬實驗</title>
+<style>
+    * { box-sizing: border-box; }
+    body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; margin:0; padding:20px; min-height:100vh; }
+    .header { text-align:center; margin-bottom:20px; }
+    .header h1 { color:#00ff88; text-shadow:0 0 10px #00ff88; margin:0; }
+    .main-container { display:grid; grid-template-columns:350px 1fr; gap:20px; max-width:1400px; margin:0 auto; }
+    .control-panel { background: linear-gradient(135deg, #1a1a2e, #16213e); padding:20px; border-radius:10px; border:2px solid #00ff88; }
+    .control-group { margin-bottom:20px; background: rgba(0,255,136,0.1); padding:15px; border-radius:10px; }
+    .control-group h3 { color:#00ff88; font-size:1.2em; margin-bottom:10px; }
+    .slider-container { display:flex; align-items:center; margin:8px 0; }
+    .slider-container label { width:120px; font-size:13px; color:#ddd; }
+    .slider { flex:1; margin:0 10px; height:6px; background:#333; border-radius:3px; outline:none; -webkit-appearance:none; }
+    .slider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; background:#00ff88; border-radius:50%; cursor:pointer; box-shadow:0 0 8px #00ff88; }
+    .value-display { width:60px; text-align:right; font-size:13px; color:#00ff88; font-weight:bold; }
+    .button-group { display:flex; gap:10px; margin:10px 0; }
+    .btn { flex:1; padding:10px; background:linear-gradient(45deg,#00ff88,#00cc6a); border:none; border-radius:8px; cursor:pointer; font-size:13px; font-weight:bold; transition:0.3s; }
+    .btn:hover { background:linear-gradient(45deg,#00cc6a,#009955); box-shadow:0 0 12px rgba(0,255,136,0.5); transform:translateY(-1px); }
+    .btn.active { background:linear-gradient(45deg,#ff6b35,#ff4500); color:#fff; box-shadow:0 0 15px rgba(255,107,53,0.6); }
+    .simulation-container { display:flex; flex-direction:column; gap:15px; }
+    .simulation-area { background:#000; height:450px; border:3px solid #00ff88; border-radius:10px; position:relative; overflow:hidden; box-shadow:0 0 20px rgba(0,255,136,0.4); }
+    .info-display { position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.85); padding:10px; border-radius:8px; font-size:13px; border:1px solid #00ff88; }
+    .info-display div { display:flex; justify-content:space-between; margin:3px 0; }
+    .info-display .label { color:#ccc; }
+    .info-display .value { color:#00ff88; font-weight:bold; }
+    .efficiency-section { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius:10px; padding:15px; border:2px solid #00ff88; }
+    .efficiency-section h3 { color:#00ff88; text-align:center; font-size:1.3em; margin:0 0 10px; }
+    .table-container { max-height:250px; overflow-y:auto; border-radius:8px; border:1px solid #333; }
+    .table { width:100%; border-collapse:collapse; font-size:12px; }
+    .table th { position:sticky; top:0; background:linear-gradient(135deg,#00ff88,#00cc6a); color:#000; padding:8px; font-weight:bold; text-align:center; }
+    .table td { background:#1a1a2e; color:#fff; padding:6px; text-align:center; border-bottom:1px solid #333; }
+    .table tbody tr:hover { background: rgba(0,255,136,0.1); }
+    .table .efficiency-cell { color:#00ff88; font-weight:bold; }
+    .table .status-normal { color:#4CAF50; }
+    .table .status-total { color:#ff6b35; }
+    .control-buttons { display:flex; gap:10px; margin-top:10px; justify-content:center; }
+    .light-ray { position:absolute; height:2px; border-radius:1px; animation:pulse 2s infinite; transform-origin:left center; }
+    .incident-ray { background:linear-gradient(to right,transparent,#ffff00,#ffff00); box-shadow:0 0 6px #ffff00; }
+    .reflected-ray { background:linear-gradient(to right,#ff6b35,transparent); box-shadow:0 0 6px #ff6b35; }
+    .refracted-ray { background:linear-gradient(to right,#00ff88,transparent); box-shadow:0 0 6px #00ff88; }
+    .solar-panel { position:absolute; background:linear-gradient(135deg,#1e3c72,#2a5298); border:2px solid #00ff88; border-radius:5px; box-shadow:0 0 10px rgba(0,255,136,0.4); }
+    .panel-surface { position:absolute; top:0; left:0; right:0; height:3px; background:#00ff88; box-shadow:0 0 8px #00ff88; }
+    @keyframes pulse {0%{opacity:0.5}50%{opacity:1}100%{opacity:0.5}}
+</style>
+</head>
+<body>
+<div class="header">
+    <h1>光電板光學效率模擬實驗</h1>
+    <p>研究光的全反射與折射對太陽能板吸收效率的影響</p>
+</div>
+
+<div class="main-container">
+    <div class="control-panel">
+        <div class="control-group">
+            <h3>🎛️ 控制變因</h3>
+            <div class="slider-container"><label>入射角度 θ₁:</label><input type="range" class="slider" id="incidentAngle" min="0" max="89" value="30" step="1"><span class="value-display" id="incidentAngleValue">30°</span></div>
+            <div class="slider-container"><label>空氣折射率 n₁:</label><input type="range" class="slider" id="n1" min="100" max="150" value="100" step="1"><span class="value-display" id="n1Value">1.00</span></div>
+            <div class="slider-container"><label>材料折射率 n₂:</label><input type="range" class="slider" id="n2" min="150" max="400" value="360" step="5"><span class="value-display" id="n2Value">3.60</span></div>
+            <div class="slider-container"><label>材料厚度:</label><input type="range" class="slider" id="thickness" min="50" max="500" value="200" step="10"><span class="value-display" id="thicknessValue">200μm</span></div>
+        </div>
+        <div class="control-group">
+            <h3>⚙️ 操縱變因</h3>
+            <div class="button-group">
+                <button class="btn active" id="normalMode">正常折射模式</button>
+                <button class="btn" id="totalReflectionMode">全反射模式</button>
+            </div>
+            <div class="slider-container"><label>表面粗糙度:</label><input type="range" class="slider" id="surfaceRoughness" min="0" max="100" value="0" step="5"><span class="value-display" id="surfaceRoughnessValue">0%</span></div>
+            <div class="slider-container"><label>抗反射塗層:</label><input type
