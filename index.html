@@ -16,6 +16,26 @@
             margin: 0;
             padding: 20px;
             min-height: 100vh;
+            position: relative;
+        }
+        
+        .copyright-watermark {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            user-select: none;
+            pointer-events: none;
         }
         
         .header {
@@ -337,6 +357,11 @@
     </style>
 </head>
 <body>
+    <!-- 版權水印 -->
+    <div class="copyright-watermark">
+        yangyang製作請勿盜竊
+    </div>
+    
     <div class="header">
         <h1>光電板光學效率模擬實驗</h1>
         <p>研究光的全反射與折射對太陽能板吸收效率的影響</p>
@@ -702,208 +727,4 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
                 incidentRay.style.left = (centerX - 120) + 'px';
                 incidentRay.style.top = (centerY - 1) + 'px';
                 incidentRay.style.width = '120px';
-                incidentRay.style.transform = `rotate(${results.incidentAngle}deg)`;
-                this.simulationArea.appendChild(incidentRay);
-                
-                // 繪製反射光線
-                if (results.reflectionCoeff > 0.01) {
-                    const reflectedRay = document.createElement('div');
-                    reflectedRay.className = 'light-ray reflected-ray';
-                    reflectedRay.style.left = centerX + 'px';
-                    reflectedRay.style.top = (centerY - 1) + 'px';
-                    reflectedRay.style.width = '120px';
-                    reflectedRay.style.transform = `rotate(${-results.incidentAngle}deg)`;
-                    reflectedRay.style.opacity = Math.sqrt(results.reflectionCoeff);
-                    this.simulationArea.appendChild(reflectedRay);
-                }
-                
-                // 繪製折射光線
-                if (results.refractedAngle !== null && results.transmissionCoeff > 0.01) {
-                    const refractedRay = document.createElement('div');
-                    refractedRay.className = 'light-ray refracted-ray';
-                    refractedRay.style.left = centerX + 'px';
-                    refractedRay.style.top = (centerY - 1) + 'px';
-                    refractedRay.style.width = '120px';
-                    refractedRay.style.transform = `rotate(${results.refractedAngle}deg)`;
-                    refractedRay.style.opacity = Math.sqrt(results.transmissionCoeff);
-                    this.simulationArea.appendChild(refractedRay);
-                }
-                
-                // 全反射模式下的內部反射光線
-                if (results.isTotal && this.mode === 'totalReflection') {
-                    for (let i = 0; i < 3; i++) {
-                        const internalRay = document.createElement('div');
-                        internalRay.className = 'light-ray refracted-ray';
-                        internalRay.style.left = (centerX + i * 30) + 'px';
-                        internalRay.style.top = (centerY + 10 + i * 15) + 'px';
-                        internalRay.style.width = '80px';
-                        internalRay.style.transform = `rotate(${45 + i * 20}deg)`;
-                        internalRay.style.opacity = 0.3 - i * 0.1;
-                        internalRay.style.animationDelay = i * 0.3 + 's';
-                        this.simulationArea.appendChild(internalRay);
-                    }
-                }
-            }
-            
-            recordCurrentData() {
-                const params = this.getParameters();
-                const results = this.calculateAdvancedOptics(params);
-                
-                // 添加時間戳和唯一ID
-                const record = {
-                    id: Date.now(),
-                    timestamp: new Date().toLocaleTimeString(),
-                    ...results,
-                    parameters: params
-                };
-                
-                this.dataRecords.push(record);
-                this.updateTable();
-            }
-            
-            toggleAutoScan() {
-                const button = document.getElementById('autoScan');
-                
-                if (!this.isAutoScanning) {
-                    this.isAutoScanning = true;
-                    button.textContent = '⏹️ 停止掃描';
-                    button.classList.add('active');
-                    this.startAutoScan();
-                } else {
-                    this.isAutoScanning = false;
-                    button.textContent = '🔄 自動掃描';
-                    button.classList.remove('active');
-                }
-            }
-            
-            startAutoScan() {
-                if (!this.isAutoScanning) return;
-                
-                const currentAngle = parseFloat(this.incidentAngle.value);
-                
-                // 自動掃描角度從0到89度
-                if (currentAngle < 89) {
-                    this.incidentAngle.value = currentAngle + 1;
-                    this.updateSimulation();
-                    this.recordCurrentData();
-                    
-                    setTimeout(() => this.startAutoScan(), 200);
-                } else {
-                    // 掃描完成
-                    this.toggleAutoScan();
-                    alert('自動掃描完成！已記錄 ' + (89 - 0 + 1) + ' 組數據');
-                }
-            }
-            
-            exportData() {
-                if (this.dataRecords.length === 0) {
-                    alert('沒有數據可以匯出！');
-                    return;
-                }
-                
-                // 創建CSV數據
-                const headers = [
-                    '序號', '時間戳', '入射角(度)', '折射角(度)', '臨界角(度)', 
-                    '反射係數', '透射係數', '光路長度倍數', '吸收效率(%)', 
-                    '光學狀態', '模式', '材料折射率', '抗反射塗層(%)', '表面粗糙度(%)'
-                ];
-                
-                const csvContent = [
-                    headers.join(','),
-                    ...this.dataRecords.map((record, index) => [
-                        index + 1,
-                        record.timestamp,
-                        record.incidentAngle.toFixed(1),
-                        record.refractedAngle ? record.refractedAngle.toFixed(1) : 'N/A',
-                        record.criticalAngle.toFixed(1),
-                        record.reflectionCoeff.toFixed(4),
-                        record.transmissionCoeff.toFixed(4),
-                        record.pathLength.toFixed(2),
-                        record.efficiency.toFixed(1),
-                        record.isTotal ? '全反射' : '正常折射',
-                        record.mode,
-                        record.parameters.n2.toFixed(2),
-                        record.parameters.coating,
-                        record.parameters.roughness
-                    ].join(','))
-                ].join('\n');
-                
-                // 下載CSV文件
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `光電板效率數據_${new Date().toISOString().slice(0,10)}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-            
-            clearAllData() {
-                if (confirm('確定要清除所有數據嗎？此操作無法復原。')) {
-                    this.dataRecords = [];
-                    this.updateTable();
-                }
-            }
-            
-            deleteRecord(id) {
-                this.dataRecords = this.dataRecords.filter(record => record.id !== id);
-                this.updateTable();
-            }
-            
-            updateTable() {
-                this.tableBody.innerHTML = '';
-                
-                this.dataRecords.forEach((record, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${record.incidentAngle.toFixed(1)}</td>
-                        <td>${record.refractedAngle ? record.refractedAngle.toFixed(1) : 'N/A'}</td>
-                        <td>${(record.reflectionCoeff * 100).toFixed(1)}%</td>
-                        <td>${record.pathLength.toFixed(2)}×</td>
-                        <td class="efficiency-cell">${record.efficiency.toFixed(1)}%</td>
-                        <td class="${record.isTotal ? 'status-total' : 'status-normal'}">
-                            ${record.isTotal ? '全反射' : '正常折射'}
-                        </td>
-                        <td>
-                            <button class="btn" onclick="simulation.deleteRecord(${record.id})" style="padding: 4px 8px; font-size: 11px;">
-                                ❌
-                            </button>
-                        </td>
-                    `;
-                    this.tableBody.appendChild(row);
-                });
-                
-                // 添加統計資訊
-                if (this.dataRecords.length > 0) {
-                    const maxEfficiency = Math.max(...this.dataRecords.map(r => r.efficiency));
-                    const avgEfficiency = this.dataRecords.reduce((sum, r) => sum + r.efficiency, 0) / this.dataRecords.length;
-                    const totalReflectionCount = this.dataRecords.filter(r => r.isTotal).length;
-                    
-                    const statsRow = document.createElement('tr');
-                    statsRow.style.background = 'rgba(0, 255, 136, 0.2)';
-                    statsRow.style.fontWeight = 'bold';
-                    statsRow.innerHTML = `
-                        <td colspan="8" style="text-align: left; padding: 15px;">
-                            📈 統計資訊: 
-                            總計 ${this.dataRecords.length} 筆數據 | 
-                            最高效率 ${maxEfficiency.toFixed(1)}% | 
-                            平均效率 ${avgEfficiency.toFixed(1)}% | 
-                            全反射現象 ${totalReflectionCount} 次
-                        </td>
-                    `;
-                    this.tableBody.appendChild(statsRow);
-                }
-            }
-        }
-        
-        // 初始化模擬器
-        let simulation;
-        window.addEventListener('DOMContentLoaded', () => {
-            simulation = new AdvancedSolarPanelSimulation();
-        });
-    </script>
-</body>
-</html>
+                incidentRay.style.
