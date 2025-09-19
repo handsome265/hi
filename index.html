@@ -400,6 +400,22 @@
                     <input type="range" class="slider" id="arCoating" min="0" max="100" value="0" step="5">
                     <span class="value-display" id="arCoatingValue">0%</span>
                 </div>
+                <div class="slider-container">
+                    <label>玻璃片顏色:</label>
+                    <select class="slider" id="glassColor" style="height: 30px; background: #333; color: #fff; border: 1px solid #00ff88; border-radius: 5px;">
+                        <option value="clear">透明 (100%)</option>
+                        <option value="lightBlue">淺藍 (85%)</option>
+                        <option value="green">綠色 (75%)</option>
+                        <option value="yellow">黃色 (70%)</option>
+                        <option value="orange">橙色 (60%)</option>
+                        <option value="red">紅色 (55%)</option>
+                        <option value="darkBlue">深藍 (45%)</option>
+                        <option value="purple">紫色 (40%)</option>
+                        <option value="brown">棕色 (35%)</option>
+                        <option value="gray">灰色 (25%)</option>
+                    </select>
+                    <span class="value-display" id="glassColorValue">透明</span>
+                </div>
             </div>
             
             <div class="formula-box">
@@ -408,7 +424,11 @@
 <strong>Snell定律:</strong> n₁sin(θ₁) = n₂sin(θ₂)
 <strong>臨界角:</strong> θc = arcsin(n₁/n₂)
 <strong>反射率:</strong> R = (|rs|² + |rp|²)/2
-<strong>吸收效率:</strong> η = (1-R) × [1-exp(-αL)]
+<strong>玻璃透光率:</strong> Tglass = 光譜透光係數
+<strong>修正吸收效率:</strong> η = Tglass × (1-R) × [1-exp(-αL)]
+
+<em>不同顏色玻璃對光譜的吸收特性：</em>
+透明>淺藍>綠>黃>橙>紅>深藍>紫>棕>灰
                 </div>
             </div>
         </div>
@@ -419,6 +439,7 @@
                     <div><span class="label">入射角 θ₁:</span><span class="value" id="displayAngle">30.0°</span></div>
                     <div><span class="label">折射角 θ₂:</span><span class="value" id="displayRefractAngle">-</span></div>
                     <div><span class="label">臨界角 θc:</span><span class="value" id="displayCriticalAngle">-</span></div>
+                    <div><span class="label">玻璃透光率:</span><span class="value" id="displayGlassTransmission">100%</span></div>
                     <div><span class="label">反射率 R:</span><span class="value" id="displayReflection">-</span></div>
                     <div><span class="label">穿透率 T:</span><span class="value" id="displayTransmission">-</span></div>
                     <div style="border-top: 1px solid #00ff88; margin-top: 8px; padding-top: 8px;">
@@ -436,6 +457,7 @@
                                 <th>序號</th>
                                 <th>入射角(°)</th>
                                 <th>折射角(°)</th>
+                                <th>玻璃颜色</th>
                                 <th>反射率(%)</th>
                                 <th>吸收效率(%)</th>
                                 <th>狀態</th>
@@ -474,6 +496,9 @@
                     document.getElementById(id).addEventListener('input', () => this.updateSimulation());
                 });
                 
+                // 玻璃颜色选择事件
+                document.getElementById('glassColor').addEventListener('change', () => this.updateSimulation());
+                
                 // 按鈕事件
                 document.getElementById('normalMode').addEventListener('click', () => {
                     this.mode = 'normal';
@@ -510,7 +535,8 @@
                     n2: parseFloat(document.getElementById('n2').value) / 100,
                     thickness: parseFloat(document.getElementById('thickness').value),
                     roughness: parseFloat(document.getElementById('surfaceRoughness').value),
-                    coating: parseFloat(document.getElementById('arCoating').value)
+                    coating: parseFloat(document.getElementById('arCoating').value),
+                    glassColor: document.getElementById('glassColor').value
                 };
             }
             
@@ -521,11 +547,42 @@
                 document.getElementById('thicknessValue').textContent = params.thickness + 'μm';
                 document.getElementById('surfaceRoughnessValue').textContent = params.roughness + '%';
                 document.getElementById('arCoatingValue').textContent = params.coating + '%';
+                
+                // 更新玻璃颜色显示
+                const glassColors = {
+                    'clear': '透明',
+                    'lightBlue': '淺藍',
+                    'green': '綠色',
+                    'yellow': '黃色',
+                    'orange': '橙色',
+                    'red': '紅色',
+                    'darkBlue': '深藍',
+                    'purple': '紫色',
+                    'brown': '棕色',
+                    'gray': '灰色'
+                };
+                document.getElementById('glassColorValue').textContent = glassColors[params.glassColor];
             }
             
             calculateOptics(params) {
-                const { angle, n1, n2, thickness, roughness, coating } = params;
+                const { angle, n1, n2, thickness, roughness, coating, glassColor } = params;
                 const theta1 = angle * Math.PI / 180;
+                
+                // 不同颜色玻璃的透光率 (基于真实光谱吸收特性)
+                const glassTransmission = {
+                    'clear': 1.00,      // 透明玻璃
+                    'lightBlue': 0.85,  // 淺藍玻璃
+                    'green': 0.75,      // 綠色玻璃
+                    'yellow': 0.70,     // 黃色玻璃
+                    'orange': 0.60,     // 橙色玻璃
+                    'red': 0.55,        // 紅色玻璃
+                    'darkBlue': 0.45,   // 深藍玻璃
+                    'purple': 0.40,     // 紫色玻璃
+                    'brown': 0.35,      // 棕色玻璃
+                    'gray': 0.25        // 灰色玻璃
+                };
+                
+                const glassTransmissionCoeff = glassTransmission[glassColor];
                 
                 // 計算臨界角
                 const criticalAngle = Math.asin(Math.min(n1/n2, 1)) * 180 / Math.PI;
@@ -567,11 +624,13 @@
                 reflectionCoeff = Math.max(0, Math.min(1, reflectionCoeff));
                 const transmissionCoeff = 1 - reflectionCoeff;
                 
-                // 計算吸收效率
+                // 計算吸收效率 (包含玻璃颜色影響)
                 const absorptionCoeff = 1000; // 簡化的吸收係數
                 const pathLength = thickness / 1000; // 轉換為mm
                 const absorption = 1 - Math.exp(-absorptionCoeff * pathLength);
-                let efficiency = transmissionCoeff * absorption * 100;
+                
+                // 最終效率 = 玻璃透光率 × 界面透過率 × 材料吸收率
+                let efficiency = glassTransmissionCoeff * transmissionCoeff * absorption * 100;
                 
                 efficiency = Math.max(0, Math.min(100, efficiency));
                 
@@ -581,6 +640,7 @@
                     criticalAngle,
                     reflectionCoeff,
                     transmissionCoeff,
+                    glassTransmissionCoeff,
                     efficiency,
                     isTotal
                 };
@@ -597,6 +657,7 @@
                 document.getElementById('displayRefractAngle').textContent = 
                     results.refractedAngle ? results.refractedAngle.toFixed(1) + '°' : '全反射';
                 document.getElementById('displayCriticalAngle').textContent = results.criticalAngle.toFixed(1) + '°';
+                document.getElementById('displayGlassTransmission').textContent = (results.glassTransmissionCoeff * 100).toFixed(0) + '%';
                 document.getElementById('displayReflection').textContent = (results.reflectionCoeff * 100).toFixed(1) + '%';
                 document.getElementById('displayTransmission').textContent = (results.transmissionCoeff * 100).toFixed(1) + '%';
                 document.getElementById('displayEfficiency').textContent = results.efficiency.toFixed(1) + '%';
@@ -616,25 +677,31 @@
                 const panelWidth = 180;
                 const panelHeight = 60;
                 
-                // 創建太陽能板
+                // 获取玻璃片颜色
+                const glassColor = this.getGlassPanelColor(params.glassColor);
+                
+                // 創建太陽能板，应用玻璃颜色
                 const panel = document.createElement('div');
                 panel.className = 'solar-panel';
                 panel.style.left = (centerX - panelWidth/2) + 'px';
                 panel.style.top = (centerY - panelHeight/2) + 'px';
                 panel.style.width = panelWidth + 'px';
                 panel.style.height = panelHeight + 'px';
+                panel.style.background = `linear-gradient(135deg, ${glassColor.primary}, ${glassColor.secondary}, ${glassColor.primary})`;
+                panel.style.opacity = results.glassTransmissionCoeff * 0.8 + 0.2; // 根据透光率调整透明度
                 
                 const surface = document.createElement('div');
                 surface.className = 'panel-surface';
+                surface.style.background = glassColor.surface;
                 panel.appendChild(surface);
                 area.appendChild(panel);
                 
-                // 創建光線
+                // 創建光線，根据玻璃颜色调整光线颜色
                 this.createRay(area, centerX - 120, centerY, 120, -results.incidentAngle, 'incident-ray');
                 this.createRay(area, centerX, centerY, 100, results.incidentAngle, 'reflected-ray');
                 
                 if (!results.isTotal && results.refractedAngle !== null) {
-                    this.createRay(area, centerX, centerY + 30, 80, results.refractedAngle, 'refracted-ray');
+                    this.createColoredRay(area, centerX, centerY + 30, 80, results.refractedAngle, 'refracted-ray', glassColor.ray);
                 }
             }
             
@@ -648,14 +715,40 @@
                 container.appendChild(ray);
             }
             
+            createColoredRay(container, x, y, length, angle, className, color) {
+                const ray = document.createElement('div');
+                ray.className = `light-ray ${className}`;
+                ray.style.left = x + 'px';
+                ray.style.top = y + 'px';
+                ray.style.width = length + 'px';
+                ray.style.transform = `rotate(${angle}deg)`;
+                ray.style.background = `linear-gradient(to right, ${color}, transparent)`;
+                ray.style.boxShadow = `0 0 8px ${color}`;
+                container.appendChild(ray);
+            }
+            
             recordData() {
                 const params = this.getParameters();
                 const results = this.calculateOptics(params);
+                
+                const glassColors = {
+                    'clear': '透明',
+                    'lightBlue': '淺藍',
+                    'green': '綠色',
+                    'yellow': '黃色',
+                    'orange': '橙色',
+                    'red': '紅色',
+                    'darkBlue': '深藍',
+                    'purple': '紫色',
+                    'brown': '棕色',
+                    'gray': '灰色'
+                };
                 
                 this.dataRecords.push({
                     id: this.dataRecords.length + 1,
                     angle: results.incidentAngle,
                     refracted: results.refractedAngle,
+                    glassColor: glassColors[params.glassColor],
                     reflection: results.reflectionCoeff * 100,
                     efficiency: results.efficiency,
                     status: results.isTotal ? '全反射' : '正常'
@@ -674,12 +767,96 @@
                         <td>${record.id}</td>
                         <td>${record.angle.toFixed(1)}</td>
                         <td>${record.refracted ? record.refracted.toFixed(1) : 'N/A'}</td>
+                        <td style="color: ${this.getGlassColorCode(record.glassColor)};">${record.glassColor}</td>
                         <td>${record.reflection.toFixed(1)}</td>
                         <td class="efficiency-cell">${record.efficiency.toFixed(1)}</td>
                         <td>${record.status}</td>
                     `;
                     tbody.appendChild(row);
                 });
+            }
+            
+            getGlassColorCode(colorName) {
+                const colorMap = {
+                    '透明': '#ffffff',
+                    '淺藍': '#87CEEB',
+                    '綠色': '#32CD32',
+                    '黃色': '#FFD700',
+                    '橙色': '#FF8C00',
+                    '紅色': '#FF6347',
+                    '深藍': '#4682B4',
+                    '紫色': '#9932CC',
+                    '棕色': '#D2691E',
+                    '灰色': '#A9A9A9'
+                };
+                return colorMap[colorName] || '#ffffff';
+            }
+            
+            getGlassPanelColor(glassColorKey) {
+                const colorMapping = {
+                    'clear': {
+                        primary: '#1e3c72',
+                        secondary: '#2a5298',
+                        surface: '#00ff88',
+                        ray: '#00ff88'
+                    },
+                    'lightBlue': {
+                        primary: '#4682B4',
+                        secondary: '#87CEEB',
+                        surface: '#87CEEB',
+                        ray: '#87CEEB'
+                    },
+                    'green': {
+                        primary: '#228B22',
+                        secondary: '#32CD32',
+                        surface: '#32CD32',
+                        ray: '#32CD32'
+                    },
+                    'yellow': {
+                        primary: '#DAA520',
+                        secondary: '#FFD700',
+                        surface: '#FFD700',
+                        ray: '#FFD700'
+                    },
+                    'orange': {
+                        primary: '#FF6347',
+                        secondary: '#FF8C00',
+                        surface: '#FF8C00',
+                        ray: '#FF8C00'
+                    },
+                    'red': {
+                        primary: '#B22222',
+                        secondary: '#FF6347',
+                        surface: '#FF6347',
+                        ray: '#FF6347'
+                    },
+                    'darkBlue': {
+                        primary: '#191970',
+                        secondary: '#4682B4',
+                        surface: '#4682B4',
+                        ray: '#4682B4'
+                    },
+                    'purple': {
+                        primary: '#4B0082',
+                        secondary: '#9932CC',
+                        surface: '#9932CC',
+                        ray: '#9932CC'
+                    },
+                    'brown': {
+                        primary: '#8B4513',
+                        secondary: '#D2691E',
+                        surface: '#D2691E',
+                        ray: '#D2691E'
+                    },
+                    'gray': {
+                        primary: '#2F4F4F',
+                        secondary: '#A9A9A9',
+                        surface: '#A9A9A9',
+                        ray: '#A9A9A9'
+                    }
+                };
+                
+                return colorMapping[glassColorKey] || colorMapping['clear'];
             }
             
             autoScan() {
