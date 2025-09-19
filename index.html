@@ -80,7 +80,7 @@
         }
         
         .simulation-area {
-            background: #000;
+            background: #111;
             height: 450px;
             border: 3px solid #00ff88;
             border-radius: 15px;
@@ -290,14 +290,6 @@
             font-size: 13px;
         }
         
-        .table .status-normal {
-            color: #4CAF50;
-        }
-        
-        .table .status-total {
-            color: #ff6b35;
-        }
-        
         .control-buttons {
             display: flex;
             gap: 15px;
@@ -307,7 +299,7 @@
         
         .light-ray {
             position: absolute;
-            height: 3px;
+            height: 4px;
             transform-origin: left center;
             border-radius: 2px;
         }
@@ -340,15 +332,15 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 4px;
             background: #00ff88;
             box-shadow: 0 0 10px #00ff88;
         }
         
         @keyframes pulse {
-            0% { opacity: 0.6; }
+            0% { opacity: 0.7; }
             50% { opacity: 1; }
-            100% { opacity: 0.6; }
+            100% { opacity: 0.7; }
         }
         
         .light-ray {
@@ -357,9 +349,8 @@
     </style>
 </head>
 <body>
-    <!-- 版權水印 -->
     <div class="copyright-watermark">
-        yangyang製作請勿盜竊
+        陽陽製作請勿盜竊
     </div>
     
     <div class="header">
@@ -370,7 +361,7 @@
     <div class="main-container">
         <div class="control-panel">
             <div class="control-group">
-                <h3>🎛️ 控制變因 (Control Variables)</h3>
+                <h3>🎛️ 控制變因</h3>
                 <div class="slider-container">
                     <label>入射角度 θ₁:</label>
                     <input type="range" class="slider" id="incidentAngle" min="0" max="89" value="30" step="1">
@@ -394,10 +385,10 @@
             </div>
             
             <div class="control-group">
-                <h3>⚙️ 操縱變因 (Manipulated Variables)</h3>
+                <h3>⚙️ 操縱變因</h3>
                 <div class="button-group">
-                    <button class="btn active" id="normalMode">正常折射模式</button>
-                    <button class="btn" id="totalReflectionMode">全反射模式</button>
+                    <button class="btn active" id="normalMode">正常折射</button>
+                    <button class="btn" id="totalReflectionMode">全反射</button>
                 </div>
                 <div class="slider-container">
                     <label>表面粗糙度:</label>
@@ -409,30 +400,14 @@
                     <input type="range" class="slider" id="arCoating" min="0" max="100" value="0" step="5">
                     <span class="value-display" id="arCoatingValue">0%</span>
                 </div>
-                <div class="slider-container">
-                    <label>背反射器:</label>
-                    <input type="range" class="slider" id="backReflector" min="0" max="100" value="0" step="5">
-                    <span class="value-display" id="backReflectorValue">0%</span>
-                </div>
             </div>
             
             <div class="formula-box">
-                <h4>📐 核心物理公式</h4>
+                <h4>📐 物理公式</h4>
                 <div class="formula">
 <strong>Snell定律:</strong> n₁sin(θ₁) = n₂sin(θ₂)
-
 <strong>臨界角:</strong> θc = arcsin(n₁/n₂)
-
-<strong>Fresnel反射 (s偏振):</strong>
-rs = (n₁cosθ₁ - n₂cosθ₂)/(n₁cosθ₁ + n₂cosθ₂)
-
-<strong>Fresnel反射 (p偏振):</strong>
-rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
-
-<strong>平均反射率:</strong> R = (|rs|² + |rp|²)/2
-
-<strong>光路長度:</strong> L = t/cos(θ₂)
-
+<strong>反射率:</strong> R = (|rs|² + |rp|²)/2
 <strong>吸收效率:</strong> η = (1-R) × [1-exp(-αL)]
                 </div>
             </div>
@@ -440,13 +415,12 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
         
         <div class="simulation-container">
             <div class="simulation-area" id="simulationArea">
-                <div class="info-display" id="infoDisplay">
+                <div class="info-display">
                     <div><span class="label">入射角 θ₁:</span><span class="value" id="displayAngle">30.0°</span></div>
                     <div><span class="label">折射角 θ₂:</span><span class="value" id="displayRefractAngle">-</span></div>
                     <div><span class="label">臨界角 θc:</span><span class="value" id="displayCriticalAngle">-</span></div>
                     <div><span class="label">反射率 R:</span><span class="value" id="displayReflection">-</span></div>
                     <div><span class="label">穿透率 T:</span><span class="value" id="displayTransmission">-</span></div>
-                    <div><span class="label">光路長度:</span><span class="value" id="displayPathLength">-</span></div>
                     <div style="border-top: 1px solid #00ff88; margin-top: 8px; padding-top: 8px;">
                         <span class="label">吸收效率 η:</span><span class="value" id="displayEfficiency" style="font-size: 16px;">-</span>
                     </div>
@@ -454,19 +428,17 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
             </div>
             
             <div class="efficiency-section">
-                <h3>📊 應變變因 - 吸收效率數據表</h3>
+                <h3>📊 數據記錄表</h3>
                 <div class="table-container">
                     <table class="table">
                         <thead>
                             <tr>
                                 <th>序號</th>
-                                <th>入射角<br>(°)</th>
-                                <th>折射角<br>(°)</th>
-                                <th>反射率<br>(%)</th>
-                                <th>光路長度<br>(倍數)</th>
-                                <th>吸收效率<br>(%)</th>
-                                <th>光學狀態</th>
-                                <th>操作</th>
+                                <th>入射角(°)</th>
+                                <th>折射角(°)</th>
+                                <th>反射率(%)</th>
+                                <th>吸收效率(%)</th>
+                                <th>狀態</th>
                             </tr>
                         </thead>
                         <tbody id="efficiencyTableBody">
@@ -474,9 +446,8 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
                     </table>
                 </div>
                 <div class="control-buttons">
-                    <button class="btn" id="recordData">📝 記錄當前數據</button>
+                    <button class="btn" id="recordData">📝 記錄數據</button>
                     <button class="btn" id="autoScan">🔄 自動掃描</button>
-                    <button class="btn" id="exportData">💾 匯出數據</button>
                     <button class="btn" id="clearData">🗑️ 清除數據</button>
                 </div>
             </div>
@@ -484,41 +455,26 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
     </div>
 
     <script>
-        class AdvancedSolarPanelSimulation {
+        class SolarPanelSimulation {
             constructor() {
-                this.setupElements();
-                this.setupEventListeners();
                 this.mode = 'normal';
                 this.dataRecords = [];
                 this.isAutoScanning = false;
-                this.updateSimulation();
+                this.init();
             }
             
-            setupElements() {
-                // 控制元素
-                this.incidentAngle = document.getElementById('incidentAngle');
-                this.n1 = document.getElementById('n1');
-                this.n2 = document.getElementById('n2');
-                this.thickness = document.getElementById('thickness');
-                this.surfaceRoughness = document.getElementById('surfaceRoughness');
-                this.arCoating = document.getElementById('arCoating');
-                this.backReflector = document.getElementById('backReflector');
-                
-                // 顯示元素
-                this.simulationArea = document.getElementById('simulationArea');
-                this.infoDisplay = document.getElementById('infoDisplay');
-                this.tableBody = document.getElementById('efficiencyTableBody');
+            init() {
+                this.setupEventListeners();
+                this.updateSimulation();
             }
             
             setupEventListeners() {
                 // 滑桿事件
-                const sliders = [this.incidentAngle, this.n1, this.n2, this.thickness, 
-                               this.surfaceRoughness, this.arCoating, this.backReflector];
-                sliders.forEach(slider => {
-                    slider.addEventListener('input', () => this.updateSimulation());
+                ['incidentAngle', 'n1', 'n2', 'thickness', 'surfaceRoughness', 'arCoating'].forEach(id => {
+                    document.getElementById(id).addEventListener('input', () => this.updateSimulation());
                 });
                 
-                // 模式切換
+                // 按鈕事件
                 document.getElementById('normalMode').addEventListener('click', () => {
                     this.mode = 'normal';
                     this.updateButtonStates();
@@ -531,17 +487,15 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
                     this.updateSimulation();
                 });
                 
-                // 控制按鈕
-                document.getElementById('recordData').addEventListener('click', () => this.recordCurrentData());
-                document.getElementById('autoScan').addEventListener('click', () => this.toggleAutoScan());
-                document.getElementById('exportData').addEventListener('click', () => this.exportData());
-                document.getElementById('clearData').addEventListener('click', () => this.clearAllData());
+                document.getElementById('recordData').addEventListener('click', () => this.recordData());
+                document.getElementById('autoScan').addEventListener('click', () => this.autoScan());
+                document.getElementById('clearData').addEventListener('click', () => this.clearData());
                 
                 this.updateButtonStates();
             }
             
             updateButtonStates() {
-                document.querySelectorAll('.control-group .btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
                 if (this.mode === 'normal') {
                     document.getElementById('normalMode').classList.add('active');
                 } else {
@@ -549,30 +503,14 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
                 }
             }
             
-            updateSimulation() {
-                // 更新顯示值
-                const params = this.getParameters();
-                this.updateDisplayValues(params);
-                
-                // 計算光學參數
-                const results = this.calculateAdvancedOptics(params);
-                
-                // 更新資訊顯示
-                this.updateInfoDisplay(results);
-                
-                // 更新視覺化
-                this.updateVisualization(results, params);
-            }
-            
             getParameters() {
                 return {
-                    angle: parseFloat(this.incidentAngle.value),
-                    n1: parseFloat(this.n1.value) / 100,
-                    n2: parseFloat(this.n2.value) / 100,
-                    thickness: parseFloat(this.thickness.value),
-                    roughness: parseFloat(this.surfaceRoughness.value),
-                    coating: parseFloat(this.arCoating.value),
-                    backRefl: parseFloat(this.backReflector.value)
+                    angle: parseFloat(document.getElementById('incidentAngle').value),
+                    n1: parseFloat(document.getElementById('n1').value) / 100,
+                    n2: parseFloat(document.getElementById('n2').value) / 100,
+                    thickness: parseFloat(document.getElementById('thickness').value),
+                    roughness: parseFloat(document.getElementById('surfaceRoughness').value),
+                    coating: parseFloat(document.getElementById('arCoating').value)
                 };
             }
             
@@ -583,11 +521,10 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
                 document.getElementById('thicknessValue').textContent = params.thickness + 'μm';
                 document.getElementById('surfaceRoughnessValue').textContent = params.roughness + '%';
                 document.getElementById('arCoatingValue').textContent = params.coating + '%';
-                document.getElementById('backReflectorValue').textContent = params.backRefl + '%';
             }
             
-            calculateAdvancedOptics(params) {
-                const { angle, n1, n2, thickness, roughness, coating, backRefl } = params;
+            calculateOptics(params) {
+                const { angle, n1, n2, thickness, roughness, coating } = params;
                 const theta1 = angle * Math.PI / 180;
                 
                 // 計算臨界角
@@ -604,72 +541,37 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
                     theta2 = Math.asin(sinTheta2);
                 }
                 
-                // 計算精確的Fresnel反射係數
+                // 計算反射係數
                 let reflectionCoeff = 0;
                 
                 if (isTotal && this.mode === 'totalReflection') {
                     reflectionCoeff = 1.0;
                 } else if (!isTotal) {
-                    // Fresnel公式
+                    // 簡化的Fresnel公式
                     const cosTheta1 = Math.cos(theta1);
                     const cosTheta2 = Math.cos(theta2);
-                    
-                    // s偏振反射係數
                     const rs = (n1 * cosTheta1 - n2 * cosTheta2) / (n1 * cosTheta1 + n2 * cosTheta2);
-                    
-                    // p偏振反射係數
                     const rp = (n1 * cosTheta2 - n2 * cosTheta1) / (n1 * cosTheta2 + n2 * cosTheta1);
-                    
-                    // 平均反射率
                     reflectionCoeff = 0.5 * (rs * rs + rp * rp);
                 }
                 
-                // 表面粗糙度效應 (增加散射，降低鏡面反射)
+                // 表面效應
                 if (roughness > 0) {
-                    const roughnessFactor = 1 - (roughness / 100) * 0.3;
-                    reflectionCoeff *= roughnessFactor;
+                    reflectionCoeff *= (1 - roughness / 100 * 0.3);
                 }
                 
-                // 抗反射塗層效應
                 if (coating > 0) {
-                    const coatingFactor = 1 - (coating / 100) * 0.85;
-                    reflectionCoeff *= coatingFactor;
+                    reflectionCoeff *= (1 - coating / 100 * 0.8);
                 }
                 
                 reflectionCoeff = Math.max(0, Math.min(1, reflectionCoeff));
                 const transmissionCoeff = 1 - reflectionCoeff;
                 
-                // 計算光路長度
-                let pathLength = 1;
-                if (!isTotal && theta2 !== null) {
-                    pathLength = thickness / (thickness * Math.cos(theta2));
-                    pathLength = Math.abs(1 / Math.cos(theta2));
-                }
-                
-                // 全反射模式的光陷效應
-                if (this.mode === 'totalReflection' && isTotal) {
-                    pathLength *= 2.5; // 多次內部反射
-                }
-                
-                // 背反射器效應
-                if (backRefl > 0) {
-                    const backFactor = 1 + (backRefl / 100) * 1.2;
-                    pathLength *= backFactor;
-                }
-                
                 // 計算吸收效率
-                // 使用Beer-Lambert定律: A = 1 - exp(-α*L)
-                const absorptionCoeff = 1e4; // 矽的吸收係數 (cm⁻¹)
-                const pathLengthCm = (thickness * 1e-4) * pathLength; // 轉換為cm
-                const intrinsicAbsorption = 1 - Math.exp(-absorptionCoeff * pathLengthCm);
-                
-                // 最終吸收效率
-                let efficiency = transmissionCoeff * intrinsicAbsorption * 100;
-                
-                // 表面紋理增強效應
-                if (roughness > 0) {
-                    efficiency *= (1 + roughness / 100 * 0.15);
-                }
+                const absorptionCoeff = 1000; // 簡化的吸收係數
+                const pathLength = thickness / 1000; // 轉換為mm
+                const absorption = 1 - Math.exp(-absorptionCoeff * pathLength);
+                let efficiency = transmissionCoeff * absorption * 100;
                 
                 efficiency = Math.max(0, Math.min(100, efficiency));
                 
@@ -679,34 +581,42 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
                     criticalAngle,
                     reflectionCoeff,
                     transmissionCoeff,
-                    pathLength,
                     efficiency,
-                    isTotal,
-                    mode: this.mode
+                    isTotal
                 };
             }
             
-            updateInfoDisplay(results) {
+            updateSimulation() {
+                const params = this.getParameters();
+                this.updateDisplayValues(params);
+                
+                const results = this.calculateOptics(params);
+                
+                // 更新顯示
                 document.getElementById('displayAngle').textContent = results.incidentAngle.toFixed(1) + '°';
                 document.getElementById('displayRefractAngle').textContent = 
-                    results.refractedAngle ? results.refractedAngle.toFixed(1) + '°' : 'N/A (全反射)';
+                    results.refractedAngle ? results.refractedAngle.toFixed(1) + '°' : '全反射';
                 document.getElementById('displayCriticalAngle').textContent = results.criticalAngle.toFixed(1) + '°';
                 document.getElementById('displayReflection').textContent = (results.reflectionCoeff * 100).toFixed(1) + '%';
                 document.getElementById('displayTransmission').textContent = (results.transmissionCoeff * 100).toFixed(1) + '%';
-                document.getElementById('displayPathLength').textContent = results.pathLength.toFixed(2) + '×';
                 document.getElementById('displayEfficiency').textContent = results.efficiency.toFixed(1) + '%';
+                
+                // 更新視覺化
+                this.updateVisualization(results, params);
             }
             
             updateVisualization(results, params) {
-                // 清除之前的光線和面板
-                document.querySelectorAll('.light-ray, .solar-panel').forEach(el => el.remove());
+                const area = document.getElementById('simulationArea');
+                
+                // 清除舊的光線和面板
+                area.querySelectorAll('.light-ray, .solar-panel').forEach(el => el.remove());
                 
                 const centerX = 300;
                 const centerY = 225;
                 const panelWidth = 180;
                 const panelHeight = 60;
                 
-                // 繪製太陽能板
+                // 創建太陽能板
                 const panel = document.createElement('div');
                 panel.className = 'solar-panel';
                 panel.style.left = (centerX - panelWidth/2) + 'px';
@@ -714,17 +624,96 @@ rp = (n₁cosθ₂ - n₂cosθ₁)/(n₁cosθ₂ + n₂cosθ₁)
                 panel.style.width = panelWidth + 'px';
                 panel.style.height = panelHeight + 'px';
                 
-                // 添加表面
                 const surface = document.createElement('div');
                 surface.className = 'panel-surface';
                 panel.appendChild(surface);
+                area.appendChild(panel);
                 
-                this.simulationArea.appendChild(panel);
+                // 創建光線
+                this.createRay(area, centerX - 120, centerY, 120, -results.incidentAngle, 'incident-ray');
+                this.createRay(area, centerX, centerY, 100, results.incidentAngle, 'reflected-ray');
                 
-                // 繪製入射光線
-                const incidentRay = document.createElement('div');
-                incidentRay.className = 'light-ray incident-ray';
-                incidentRay.style.left = (centerX - 120) + 'px';
-                incidentRay.style.top = (centerY - 1) + 'px';
-                incidentRay.style.width = '120px';
-                incidentRay.style.
+                if (!results.isTotal && results.refractedAngle !== null) {
+                    this.createRay(area, centerX, centerY + 30, 80, results.refractedAngle, 'refracted-ray');
+                }
+            }
+            
+            createRay(container, x, y, length, angle, className) {
+                const ray = document.createElement('div');
+                ray.className = `light-ray ${className}`;
+                ray.style.left = x + 'px';
+                ray.style.top = y + 'px';
+                ray.style.width = length + 'px';
+                ray.style.transform = `rotate(${angle}deg)`;
+                container.appendChild(ray);
+            }
+            
+            recordData() {
+                const params = this.getParameters();
+                const results = this.calculateOptics(params);
+                
+                this.dataRecords.push({
+                    id: this.dataRecords.length + 1,
+                    angle: results.incidentAngle,
+                    refracted: results.refractedAngle,
+                    reflection: results.reflectionCoeff * 100,
+                    efficiency: results.efficiency,
+                    status: results.isTotal ? '全反射' : '正常'
+                });
+                
+                this.updateTable();
+            }
+            
+            updateTable() {
+                const tbody = document.getElementById('efficiencyTableBody');
+                tbody.innerHTML = '';
+                
+                this.dataRecords.forEach(record => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${record.id}</td>
+                        <td>${record.angle.toFixed(1)}</td>
+                        <td>${record.refracted ? record.refracted.toFixed(1) : 'N/A'}</td>
+                        <td>${record.reflection.toFixed(1)}</td>
+                        <td class="efficiency-cell">${record.efficiency.toFixed(1)}</td>
+                        <td>${record.status}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            
+            autoScan() {
+                if (this.isAutoScanning) return;
+                
+                this.isAutoScanning = true;
+                const button = document.getElementById('autoScan');
+                button.textContent = '⏳ 掃描中...';
+                
+                let angle = 0;
+                const interval = setInterval(() => {
+                    document.getElementById('incidentAngle').value = angle;
+                    this.updateSimulation();
+                    this.recordData();
+                    
+                    angle += 5;
+                    if (angle > 85) {
+                        clearInterval(interval);
+                        this.isAutoScanning = false;
+                        button.textContent = '🔄 自動掃描';
+                    }
+                }, 200);
+            }
+            
+            clearData() {
+                this.dataRecords = [];
+                this.updateTable();
+            }
+        }
+        
+        // 啟動模擬
+        window.onload = () => {
+            new SolarPanelSimulation();
+        };
+    </script>
+</body>
+</html>
