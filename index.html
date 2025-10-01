@@ -5,362 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>羊羊光電板光學效率模擬實驗</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-        
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            position: relative;
-        }
-        
-        .copyright-watermark {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px 15px;
-            border-radius: 8px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-            user-select: none;
-            pointer-events: none;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            color: #00ff88;
-            font-size: 2.5em;
-            text-shadow: 0 0 10px #00ff88;
-            margin: 0;
-        }
-        
-        .header p {
-            color: #ccc;
-            font-size: 1.1em;
-            margin-top: 10px;
-        }
-        
-        .main-container {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 25px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .control-panel {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            padding: 25px;
-            border-radius: 15px;
-            border: 2px solid #00ff88;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-            height: fit-content;
-        }
-        
-        .simulation-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .simulation-area {
-            background: #111;
-            height: 450px;
-            border: 3px solid #00ff88;
-            border-radius: 15px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
-        }
-        
-        .control-group {
-            margin-bottom: 25px;
-            background: rgba(0, 255, 136, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-        }
-        
-        .control-group h3 {
-            color: #00ff88;
-            margin: 0 0 15px 0;
-            font-size: 1.2em;
-            text-shadow: 0 0 5px #00ff88;
-        }
-        
-        .slider-container {
-            display: flex;
-            align-items: center;
-            margin: 12px 0;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px;
-            border-radius: 8px;
-        }
-        
-        .slider-container label {
-            width: 110px;
-            font-size: 13px;
-            color: #ddd;
-            font-weight: 500;
-        }
-        
-        .slider {
-            flex: 1;
-            margin: 0 12px;
-            height: 6px;
-            background: #333;
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-        
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            background: #00ff88;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
-        }
-        
-        .slider:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .slider:disabled::-webkit-slider-thumb {
-            cursor: not-allowed;
-            background: #666;
-        }
-        
-        .value-display {
-            width: 65px;
-            text-align: right;
-            font-size: 13px;
-            color: #00ff88;
-            font-weight: bold;
-        }
-        
-        .btn {
-            padding: 12px 18px;
-            background: linear-gradient(45deg, #00ff88, #00cc6a);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            flex: 1;
-        }
-        
-        .btn:hover {
-            background: linear-gradient(45deg, #00cc6a, #009955);
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
-            transform: translateY(-2px);
-        }
-        
-        .formula-box {
-            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border: 2px solid #444;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        
-        .formula-box h4 {
-            color: #00ff88;
-            margin-top: 0;
-            font-size: 1.1em;
-        }
-        
-        .formula {
-            font-family: 'Courier New', monospace;
-            color: #fff;
-            font-size: 12px;
-            line-height: 1.6;
-            background: #000;
-            padding: 10px;
-            border-radius: 5px;
-            border-left: 4px solid #00ff88;
-        }
-        
-        .info-display {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 46, 0.9));
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 13px;
-            border: 1px solid #00ff88;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
-            min-width: 200px;
-        }
-        
-        .info-display div {
-            margin: 5px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .info-display .label {
-            color: #ccc;
-        }
-        
-        .info-display .value {
-            color: #00ff88;
-            font-weight: bold;
-        }
-        
-        .efficiency-section {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border-radius: 15px;
-            padding: 25px;
-            border: 2px solid #00ff88;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-        }
-        
-        .efficiency-section h3 {
-            color: #00ff88;
-            text-align: center;
-            font-size: 1.4em;
-            margin-top: 0;
-            text-shadow: 0 0 5px #00ff88;
-        }
-        
-        .table-container {
-            max-height: 300px;
-            overflow-y: auto;
-            border-radius: 10px;
-            border: 1px solid #333;
-        }
-        
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-        
-        .table th {
-            background: linear-gradient(135deg, #00ff88, #00cc6a);
-            color: #000;
-            padding: 12px 8px;
-            text-align: center;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .table td {
-            background: #1a1a2e;
-            color: #fff;
-            padding: 10px 8px;
-            text-align: center;
-            border-bottom: 1px solid #333;
-        }
-        
-        .table tbody tr:hover {
-            background: rgba(0, 255, 136, 0.1);
-        }
-        
-        .table .efficiency-cell {
-            color: #00ff88;
-            font-weight: bold;
-            font-size: 13px;
-        }
-        
-        .control-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            justify-content: center;
-        }
-        
-        .light-ray {
-            position: absolute;
-            border-radius: 2px;
-        }
-        
-        .incident-ray {
-            background: linear-gradient(to bottom, transparent, #ffff00, #ffff00);
-            box-shadow: 0 0 8px #ffff00;
-        }
-        
-        .refracted-ray {
-            background: linear-gradient(to bottom, #00ff88, transparent);
-            box-shadow: 0 0 8px #00ff88;
-        }
-        
-        .solar-panel {
-            position: absolute;
-            background: linear-gradient(135deg, #1e3c72, #2a5298, #1e3c72);
-            border: 3px solid #00ff88;
-            border-radius: 5px;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
-        }
-        
-        .panel-surface {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: #00ff88;
-            box-shadow: 0 0 10px #00ff88;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
-        
-        .light-ray {
-            animation: pulse 2s infinite;
-        }
+        * { box-sizing: border-box; }
+        body { background-color: #000; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; min-height: 100vh; }
+        .copyright-watermark { position: fixed; top: 20px; right: 20px; color: white; font-size: 16px; font-weight: bold; background: rgba(0, 0, 0, 0.7); padding: 8px 15px; border-radius: 8px; border: 2px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(5px); z-index: 1000; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); user-select: none; pointer-events: none; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #00ff88; font-size: 2.5em; text-shadow: 0 0 10px #00ff88; margin: 0; }
+        .header p { color: #ccc; font-size: 1.1em; margin-top: 10px; }
+        .main-container { display: grid; grid-template-columns: 350px 1fr; gap: 25px; max-width: 1400px; margin: 0 auto; }
+        .control-panel { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 25px; border-radius: 15px; border: 2px solid #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); height: fit-content; }
+        .simulation-container { display: flex; flex-direction: column; gap: 20px; }
+        .simulation-area { background: #111; height: 450px; border: 3px solid #00ff88; border-radius: 15px; position: relative; overflow: hidden; box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
+        .control-group { margin-bottom: 25px; background: rgba(0, 255, 136, 0.1); padding: 15px; border-radius: 10px; }
+        .control-group h3 { color: #00ff88; margin: 0 0 15px 0; font-size: 1.2em; text-shadow: 0 0 5px #00ff88; }
+        .slider-container { display: flex; align-items: center; margin: 12px 0; background: rgba(255, 255, 255, 0.05); padding: 8px; border-radius: 8px; }
+        .slider-container label { width: 110px; font-size: 13px; color: #ddd; font-weight: 500; }
+        .slider { flex: 1; margin: 0 12px; height: 6px; background: #333; border-radius: 3px; outline: none; -webkit-appearance: none; }
+        .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #00ff88; border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
+        .slider:disabled { opacity: 0.5; cursor: not-allowed; }
+        .slider:disabled::-webkit-slider-thumb { cursor: not-allowed; background: #666; }
+        .value-display { width: 65px; text-align: right; font-size: 13px; color: #00ff88; font-weight: bold; }
+        .btn { padding: 12px 18px; background: linear-gradient(45deg, #00ff88, #00cc6a); color: #000; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.3s ease; flex: 1; }
+        .btn:hover { background: linear-gradient(45deg, #00cc6a, #009955); box-shadow: 0 0 15px rgba(0, 255, 136, 0.5); transform: translateY(-2px); }
+        .formula-box { background: linear-gradient(135deg, #2a2a2a, #1a1a1a); padding: 20px; border-radius: 10px; margin: 15px 0; border: 2px solid #444; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); }
+        .formula-box h4 { color: #00ff88; margin-top: 0; font-size: 1.1em; }
+        .formula { font-family: 'Courier New', monospace; color: #fff; font-size: 12px; line-height: 1.6; background: #000; padding: 10px; border-radius: 5px; border-left: 4px solid #00ff88; }
+        .info-display { position: absolute; top: 15px; left: 15px; background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 46, 0.9)); padding: 15px; border-radius: 10px; font-size: 13px; border: 1px solid #00ff88; box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); min-width: 200px; }
+        .info-display div { margin: 5px 0; display: flex; justify-content: space-between; }
+        .info-display .label { color: #ccc; }
+        .info-display .value { color: #00ff88; font-weight: bold; }
+        .efficiency-section { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 15px; padding: 25px; border: 2px solid #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+        .efficiency-section h3 { color: #00ff88; text-align: center; font-size: 1.4em; margin-top: 0; text-shadow: 0 0 5px #00ff88; }
+        .table-container { max-height: 300px; overflow-y: auto; border-radius: 10px; border: 1px solid #333; }
+        .table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .table th { background: linear-gradient(135deg, #00ff88, #00cc6a); color: #000; padding: 12px 8px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 10; }
+        .table td { background: #1a1a2e; color: #fff; padding: 10px 8px; text-align: center; border-bottom: 1px solid #333; }
+        .table tbody tr:hover { background: rgba(0, 255, 136, 0.1); }
+        .table .efficiency-cell { color: #00ff88; font-weight: bold; font-size: 13px; }
+        .control-buttons { display: flex; gap: 15px; margin-top: 20px; justify-content: center; }
+        .light-ray { position: absolute; border-radius: 2px; animation: pulse 2s infinite; }
+        .incident-ray { background: linear-gradient(to bottom, transparent, #ffff00, #ffff00); box-shadow: 0 0 8px #ffff00; }
+        .refracted-ray { background: linear-gradient(to bottom, #00ff88, transparent); box-shadow: 0 0 8px #00ff88; }
+        .solar-panel { position: absolute; background: linear-gradient(135deg, #1e3c72, #2a5298, #1e3c72); border: 3px solid #00ff88; border-radius: 5px; box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
+        .panel-surface { position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
     </style>
 </head>
 <body>
-    <div class="copyright-watermark">
-        作者：林俐陽，請勿盜竊
-    </div>
-    
+    <div class="copyright-watermark">作者:林俐陽，請勿盜竊</div>
     <div class="header">
         <h1>🐑🐑光電板光學效率模擬實驗</h1>
         <p>研究垂直入射(90°)與玻璃紙顏色對太陽能板吸收效率的影響</p>
     </div>
-    
     <div class="main-container">
         <div class="control-panel">
             <div class="control-group">
                 <h3>🎛️ 控制變因</h3>
                 <div class="slider-container">
                     <label>入射角度 θ₁:</label>
-                    <input type="range" class="slider" id="incidentAngle" min="90" max="90" value="90" step="1" disabled>
-                    <span class="value-display" id="incidentAngleValue">90°</span>
+                    <input type="range" class="slider" id="incidentAngle" min="90" max="90" value="90" disabled>
+                    <span class="value-display">90°</span>
                 </div>
                 <div class="slider-container">
                     <label>空氣折射率 n₁:</label>
-                    <input type="range" class="slider" id="n1" min="100" max="150" value="100" step="1">
+                    <input type="range" class="slider" id="n1" min="100" max="150" value="100">
                     <span class="value-display" id="n1Value">1.00</span>
                 </div>
                 <div class="slider-container">
@@ -374,7 +81,6 @@
                     <span class="value-display" id="thicknessValue">200μm</span>
                 </div>
             </div>
-            
             <div class="control-group">
                 <h3>⚙️ 操縱變因</h3>
                 <div class="slider-container">
@@ -389,66 +95,43 @@
                 </div>
                 <div class="slider-container">
                     <label>玻璃紙顏色:</label>
-                    <select class="slider" id="glassColor" style="height: 30px; background: #333; color: #fff; border: 1px solid #00ff88; border-radius: 5px;">
-                        <option value="clear">透明 (100%)</option>
-                        <option value="lightBlue">淺藍 (85%)</option>
-                        <option value="green">綠色 (75%)</option>
-                        <option value="yellow">黃色 (70%)</option>
-                        <option value="orange">橙色 (60%)</option>
-                        <option value="red">紅色 (55%)</option>
-                        <option value="darkBlue">深藍 (45%)</option>
-                        <option value="purple">紫色 (40%)</option>
-                        <option value="brown">棕色 (35%)</option>
-                        <option value="gray">灰色 (25%)</option>
+                    <select class="slider" id="glassColor" style="height:30px;background:#333;color:#fff;border:1px solid #00ff88;border-radius:5px;">
+                        <option value="clear">透明(100%)</option>
+                        <option value="lightBlue">淺藍(85%)</option>
+                        <option value="green">綠色(75%)</option>
+                        <option value="yellow">黃色(70%)</option>
+                        <option value="orange">橙色(60%)</option>
+                        <option value="red">紅色(55%)</option>
+                        <option value="darkBlue">深藍(45%)</option>
+                        <option value="purple">紫色(40%)</option>
+                        <option value="brown">棕色(35%)</option>
+                        <option value="gray">灰色(25%)</option>
                     </select>
                     <span class="value-display" id="glassColorValue">透明</span>
                 </div>
             </div>
-            
             <div class="formula-box">
-                <h4>📐 物理公式 (垂直入射)</h4>
-                <div class="formula">
-<strong>垂直入射:</strong> θ₁ = 90°
-<strong>折射角:</strong> θ₂ = 90° (垂直穿透)
-<strong>反射率:</strong> R = ((n₁-n₂)/(n₁+n₂))²
-<strong>玻璃透光率:</strong> Tglass = 光譜透光係數
-<strong>修正吸收效率:</strong> η = Tglass × (1-R) × [1-exp(-αL)]
-
-<em>不同顏色玻璃紙對光譜的吸收特性：</em>
-透明>淺藍>綠>黃>橙>紅>深藍>紫>棕>灰
-                </div>
+                <h4>📐 物理公式(垂直入射)</h4>
+                <div class="formula">垂直入射: θ₁=90° 折射角: θ₂=90° 反射率: R=((n₁-n₂)/(n₁+n₂))² 修正吸收效率: η=Tglass×(1-R)×[1-exp(-αL)]</div>
             </div>
         </div>
-        
         <div class="simulation-container">
             <div class="simulation-area" id="simulationArea">
                 <div class="info-display">
-                    <div><span class="label">入射角 θ₁:</span><span class="value" id="displayAngle">90.0°</span></div>
-                    <div><span class="label">折射角 θ₂:</span><span class="value" id="displayRefractAngle">90.0°</span></div>
+                    <div><span class="label">入射角θ₁:</span><span class="value">90.0°</span></div>
+                    <div><span class="label">折射角θ₂:</span><span class="value">90.0°</span></div>
                     <div><span class="label">玻璃透光率:</span><span class="value" id="displayGlassTransmission">100%</span></div>
-                    <div><span class="label">反射率 R:</span><span class="value" id="displayReflection">-</span></div>
-                    <div><span class="label">穿透率 T:</span><span class="value" id="displayTransmission">-</span></div>
-                    <div style="border-top: 1px solid #00ff88; margin-top: 8px; padding-top: 8px;">
-                        <span class="label">吸收效率 η:</span><span class="value" id="displayEfficiency" style="font-size: 16px;">-</span>
-                    </div>
+                    <div><span class="label">反射率R:</span><span class="value" id="displayReflection">-</span></div>
+                    <div><span class="label">穿透率T:</span><span class="value" id="displayTransmission">-</span></div>
+                    <div style="border-top:1px solid #00ff88;margin-top:8px;padding-top:8px;"><span class="label">吸收效率η:</span><span class="value" id="displayEfficiency" style="font-size:16px;">-</span></div>
                 </div>
             </div>
-            
             <div class="efficiency-section">
                 <h3>📊 數據記錄表</h3>
                 <div class="table-container">
                     <table class="table">
-                        <thead>
-                            <tr>
-                                <th>序號</th>
-                                <th>玻璃颜色</th>
-                                <th>透光率(%)</th>
-                                <th>反射率(%)</th>
-                                <th>吸收效率(%)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="efficiencyTableBody">
-                        </tbody>
+                        <thead><tr><th>序號</th><th>玻璃颜色</th><th>透光率(%)</th><th>反射率(%)</th><th>吸收效率(%)</th></tr></thead>
+                        <tbody id="efficiencyTableBody"></tbody>
                     </table>
                 </div>
                 <div class="control-buttons">
@@ -459,221 +142,128 @@
             </div>
         </div>
     </div>
-
     <script>
         class SolarPanelSimulation {
-            constructor() {
-                this.dataRecords = [];
-                this.isAutoScanning = false;
-                this.init();
-            }
-            
-            init() {
-                this.setupEventListeners();
-                this.updateSimulation();
-            }
-            
+            constructor() { this.dataRecords = []; this.isAutoScanning = false; this.init(); }
+            init() { this.setupEventListeners(); this.updateSimulation(); }
             setupEventListeners() {
-                ['n1', 'n2', 'thickness', 'surfaceRoughness', 'arCoating'].forEach(id => {
-                    document.getElementById(id).addEventListener('input', () => this.updateSimulation());
-                });
-                
-                document.getElementById('glassColor').addEventListener('change', () => this.updateSimulation());
-                document.getElementById('recordData').addEventListener('click', () => this.recordData());
-                document.getElementById('autoScan').addEventListener('click', () => this.autoScan());
-                document.getElementById('clearData').addEventListener('click', () => this.clearData());
+                ['n1','n2','thickness','surfaceRoughness','arCoating'].forEach(id => document.getElementById(id).addEventListener('input',()=>this.updateSimulation()));
+                document.getElementById('glassColor').addEventListener('change',()=>this.updateSimulation());
+                document.getElementById('recordData').addEventListener('click',()=>this.recordData());
+                document.getElementById('autoScan').addEventListener('click',()=>this.autoScan());
+                document.getElementById('clearData').addEventListener('click',()=>this.clearData());
             }
-            
-            getParameters() {
-                return {
-                    angle: 90,
-                    n1: parseFloat(document.getElementById('n1').value) / 100,
-                    n2: parseFloat(document.getElementById('n2').value) / 100,
-                    thickness: parseFloat(document.getElementById('thickness').value),
-                    roughness: parseFloat(document.getElementById('surfaceRoughness').value),
-                    coating: parseFloat(document.getElementById('arCoating').value),
-                    glassColor: document.getElementById('glassColor').value
-                };
+            getParameters() { return {angle:90,n1:parseFloat(document.getElementById('n1').value)/100,n2:parseFloat(document.getElementById('n2').value)/100,thickness:parseFloat(document.getElementById('thickness').value),roughness:parseFloat(document.getElementById('surfaceRoughness').value),coating:parseFloat(document.getElementById('arCoating').value),glassColor:document.getElementById('glassColor').value}; }
+            updateDisplayValues(p) {
+                document.getElementById('n1Value').textContent=p.n1.toFixed(2);
+                document.getElementById('n2Value').textContent=p.n2.toFixed(2);
+                document.getElementById('thicknessValue').textContent=p.thickness+'μm';
+                document.getElementById('surfaceRoughnessValue').textContent=p.roughness+'%';
+                document.getElementById('arCoatingValue').textContent=p.coating+'%';
+                const c={'clear':'透明','lightBlue':'淺藍','green':'綠色','yellow':'黃色','orange':'橙色','red':'紅色','darkBlue':'深藍','purple':'紫色','brown':'棕色','gray':'灰色'};
+                document.getElementById('glassColorValue').textContent=c[p.glassColor];
             }
-            
-            updateDisplayValues(params) {
-                document.getElementById('incidentAngleValue').textContent = '90°';
-                document.getElementById('n1Value').textContent = params.n1.toFixed(2);
-                document.getElementById('n2Value').textContent = params.n2.toFixed(2);
-                document.getElementById('thicknessValue').textContent = params.thickness + 'μm';
-                document.getElementById('surfaceRoughnessValue').textContent = params.roughness + '%';
-                document.getElementById('arCoatingValue').textContent = params.coating + '%';
-                
-                const glassColors = {
-                    'clear': '透明', 'lightBlue': '淺藍', 'green': '綠色', 'yellow': '黃色',
-                    'orange': '橙色', 'red': '紅色', 'darkBlue': '深藍', 'purple': '紫色',
-                    'brown': '棕色', 'gray': '灰色'
-                };
-                document.getElementById('glassColorValue').textContent = glassColors[params.glassColor];
+            calculateOptics(p) {
+                const gt={'clear':1,'lightBlue':.85,'green':.75,'yellow':.7,'orange':.6,'red':.55,'darkBlue':.45,'purple':.4,'brown':.35,'gray':.25};
+                const gtc=gt[p.glassColor];
+                let rc=Math.pow((p.n1-p.n2)/(p.n1+p.n2),2);
+                if(p.roughness>0)rc*=(1-p.roughness/100*.3);
+                if(p.coating>0)rc*=(1-p.coating/100*.8);
+                rc=Math.max(0,Math.min(1,rc));
+                const tc=1-rc,ac=1000,pl=p.thickness/1000,ab=1-Math.exp(-ac*pl);
+                let eff=gtc*tc*ab*100;
+                return {reflectionCoeff:rc,transmissionCoeff:tc,glassTransmissionCoeff:gtc,efficiency:Math.max(0,Math.min(100,eff))};
             }
-            
-            calculateOptics(params) {
-                const { n1, n2, thickness, roughness, coating, glassColor } = params;
-                
-                const glassTransmission = {
-                    'clear': 1.00, 'lightBlue': 0.85, 'green': 0.75, 'yellow': 0.70, 'orange': 0.60,
-                    'red': 0.55, 'darkBlue': 0.45, 'purple': 0.40, 'brown': 0.35, 'gray': 0.25
-                };
-                
-                const glassTransmissionCoeff = glassTransmission[glassColor];
-                let reflectionCoeff = Math.pow((n1 - n2) / (n1 + n2), 2);
-                
-                if (roughness > 0) reflectionCoeff *= (1 - roughness / 100 * 0.3);
-                if (coating > 0) reflectionCoeff *= (1 - coating / 100 * 0.8);
-                
-                reflectionCoeff = Math.max(0, Math.min(1, reflectionCoeff));
-                const transmissionCoeff = 1 - reflectionCoeff;
-                
-                const absorptionCoeff = 1000;
-                const pathLength = thickness / 1000;
-                const absorption = 1 - Math.exp(-absorptionCoeff * pathLength);
-                
-                let efficiency = glassTransmissionCoeff * transmissionCoeff * absorption * 100;
-                efficiency = Math.max(0, Math.min(100, efficiency));
-                
-                return { reflectionCoeff, transmissionCoeff, glassTransmissionCoeff, efficiency };
-            }
-            
             updateSimulation() {
-                const params = this.getParameters();
-                this.updateDisplayValues(params);
-                const results = this.calculateOptics(params);
-                
-                document.getElementById('displayAngle').textContent = '90.0°';
-                document.getElementById('displayRefractAngle').textContent = '90.0°';
-                document.getElementById('displayGlassTransmission').textContent = (results.glassTransmissionCoeff * 100).toFixed(0) + '%';
-                document.getElementById('displayReflection').textContent = (results.reflectionCoeff * 100).toFixed(1) + '%';
-                document.getElementById('displayTransmission').textContent = (results.transmissionCoeff * 100).toFixed(1) + '%';
-                document.getElementById('displayEfficiency').textContent = results.efficiency.toFixed(1) + '%';
-                
-                this.updateVisualization(results, params);
+                const p=this.getParameters(),r=this.calculateOptics(p);
+                this.updateDisplayValues(p);
+                document.getElementById('displayGlassTransmission').textContent=(r.glassTransmissionCoeff*100).toFixed(0)+'%';
+                document.getElementById('displayReflection').textContent=(r.reflectionCoeff*100).toFixed(1)+'%';
+                document.getElementById('displayTransmission').textContent=(r.transmissionCoeff*100).toFixed(1)+'%';
+                document.getElementById('displayEfficiency').textContent=r.efficiency.toFixed(1)+'%';
+                this.updateVisualization(r,p);
             }
-            
-            updateVisualization(results, params) {
-                const area = document.getElementById('simulationArea');
-                area.querySelectorAll('.light-ray, .solar-panel').forEach(el => el.remove());
-                
-                const centerX = 300;
-                const centerY = 225;
-                const panelWidth = 180;
-                const panelHeight = 60;
-                
-                const glassColor = this.getGlassPanelColor(params.glassColor);
-                
-                const panel = document.createElement('div');
-                panel.className = 'solar-panel';
-                panel.style.left = (centerX - panelWidth/2) + 'px';
-                panel.style.top = (centerY - panelHeight/2) + 'px';
-                panel.style.width = panelWidth + 'px';
-                panel.style.height = panelHeight + 'px';
-                panel.style.background = `linear-gradient(135deg, ${glassColor.primary}, ${glassColor.secondary}, ${glassColor.primary})`;
-                panel.style.opacity = results.glassTransmissionCoeff * 0.8 + 0.2;
-                
-                const surface = document.createElement('div');
-                surface.className = 'panel-surface';
-                surface.style.background = glassColor.surface;
-                panel.appendChild(surface);
-                area.appendChild(panel);
-                
-                this.createVerticalRay(area, centerX, 30, centerY - panelHeight/2 - 30, 'incident-ray');
-                this.createVerticalColoredRay(area, centerX, centerY + panelHeight/2, 120, 'refracted-ray', glassColor.ray);
+            updateVisualization(r,p) {
+                const a=document.getElementById('simulationArea');
+                a.querySelectorAll('.light-ray,.solar-panel').forEach(e=>e.remove());
+                const cx=300,cy=225,pw=180,ph=60,gc=this.getGlassPanelColor(p.glassColor);
+                const pnl=document.createElement('div');
+                pnl.className='solar-panel';
+                pnl.style.left=(cx-pw/2)+'px';
+                pnl.style.top=(cy-ph/2)+'px';
+                pnl.style.width=pw+'px';
+                pnl.style.height=ph+'px';
+                pnl.style.background=`linear-gradient(135deg,${gc.primary},${gc.secondary},${gc.primary})`;
+                pnl.style.opacity=r.glassTransmissionCoeff*.8+.2;
+                const sf=document.createElement('div');
+                sf.className='panel-surface';
+                sf.style.background=gc.surface;
+                pnl.appendChild(sf);
+                a.appendChild(pnl);
+                this.createVerticalRay(a,cx,30,cy-ph/2-30,'incident-ray');
+                this.createVerticalColoredRay(a,cx,cy+ph/2,120,'refracted-ray',gc.ray);
             }
-            
-            createVerticalRay(container, x, y, length, className) {
-                const ray = document.createElement('div');
-                ray.className = `light-ray ${className}`;
-                ray.style.left = (x - 2) + 'px';
-                ray.style.top = y + 'px';
-                ray.style.width = '4px';
-                ray.style.height = length + 'px';
-                container.appendChild(ray);
+            createVerticalRay(c,x,y,l,cn) {
+                const r=document.createElement('div');
+                r.className=`light-ray ${cn}`;
+                r.style.left=(x-2)+'px';
+                r.style.top=y+'px';
+                r.style.width='4px';
+                r.style.height=l+'px';
+                c.appendChild(r);
             }
-            
-            createVerticalColoredRay(container, x, y, length, className, color) {
-                const ray = document.createElement('div');
-                ray.className = `light-ray ${className}`;
-                ray.style.left = (x - 2) + 'px';
-                ray.style.top = y + 'px';
-                ray.style.width = '4px';
-                ray.style.height = length + 'px';
-                ray.style.background = `linear-gradient(to bottom, ${color}, transparent)`;
-                ray.style.boxShadow = `0 0 8px ${color}`;
-                container.appendChild(ray);
+            createVerticalColoredRay(c,x,y,l,cn,col) {
+                const r=document.createElement('div');
+                r.className=`light-ray ${cn}`;
+                r.style.left=(x-2)+'px';
+                r.style.top=y+'px';
+                r.style.width='4px';
+                r.style.height=l+'px';
+                r.style.background=`linear-gradient(to bottom,${col},transparent)`;
+                r.style.boxShadow=`0 0 8px ${col}`;
+                c.appendChild(r);
             }
-            
             recordData() {
-                const params = this.getParameters();
-                const results = this.calculateOptics(params);
-                
-                const glassColors = {
-                    'clear': '透明', 'lightBlue': '淺藍', 'green': '綠色', 'yellow': '黃色',
-                    'orange': '橙色', 'red': '紅色', 'darkBlue': '深藍', 'purple': '紫色',
-                    'brown': '棕色', 'gray': '灰色'
-                };
-                
-                this.dataRecords.push({
-                    id: this.dataRecords.length + 1,
-                    glassColor: glassColors[params.glassColor],
-                    transmission: results.glassTransmissionCoeff * 100,
-                    reflection: results.reflectionCoeff * 100,
-                    efficiency: results.efficiency
-                });
-                
+                const p=this.getParameters(),r=this.calculateOptics(p);
+                const gc={'clear':'透明','lightBlue':'淺藍','green':'綠色','yellow':'黃色','orange':'橙色','red':'紅色','darkBlue':'深藍','purple':'紫色','brown':'棕色','gray':'灰色'};
+                this.dataRecords.push({id:this.dataRecords.length+1,glassColor:gc[p.glassColor],transmission:r.glassTransmissionCoeff*100,reflection:r.reflectionCoeff*100,efficiency:r.efficiency});
                 this.updateTable();
             }
-            
             updateTable() {
-                const tbody = document.getElementById('efficiencyTableBody');
-                tbody.innerHTML = '';
-                
-                this.dataRecords.forEach(record => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${record.id}</td>
-                        <td style="color: ${this.getGlassColorCode(record.glassColor)};">${record.glassColor}</td>
-                        <td>${record.transmission.toFixed(0)}</td>
-                        <td>${record.reflection.toFixed(1)}</td>
-                        <td class="efficiency-cell">${record.efficiency.toFixed(1)}</td>
-                    `;
-                    tbody.appendChild(row);
+                const tb=document.getElementById('efficiencyTableBody');
+                tb.innerHTML='';
+                this.dataRecords.forEach(rec=>{
+                    const row=document.createElement('tr');
+                    row.innerHTML=`<td>${rec.id}</td><td style="color:${this.getGlassColorCode(rec.glassColor)};">${rec.glassColor}</td><td>${rec.transmission.toFixed(0)}</td><td>${rec.reflection.toFixed(1)}</td><td class="efficiency-cell">${rec.efficiency.toFixed(1)}</td>`;
+                    tb.appendChild(row);
                 });
             }
-            
-            getGlassColorCode(colorName) {
-                const colorMap = {
-                    '透明': '#ffffff', '淺藍': '#87CEEB', '綠色': '#32CD32', '黃色': '#FFD700',
-                    '橙色': '#FF8C00', '紅色': '#FF6347', '深藍': '#4682B4', '紫色': '#9932CC',
-                    '棕色': '#D2691E', '灰色': '#A9A9A9'
-                };
-                return colorMap[colorName] || '#ffffff';
+            getGlassColorCode(cn) {
+                const cm={'透明':'#fff','淺藍':'#87CEEB','綠色':'#32CD32','黃色':'#FFD700','橙色':'#FF8C00','紅色':'#FF6347','深藍':'#4682B4','紫色':'#9932CC','棕色':'#D2691E','灰色':'#A9A9A9'};
+                return cm[cn]||'#fff';
             }
-            
-            getGlassPanelColor(glassColorKey) {
-                const colorMapping = {
-                    'clear': { primary: '#1e3c72', secondary: '#2a5298', surface: '#00ff88', ray: '#00ff88' },
-                    'lightBlue': { primary: '#4682B4', secondary: '#87CEEB', surface: '#87CEEB', ray: '#87CEEB' },
-                    'green': { primary: '#228B22', secondary: '#32CD32', surface: '#32CD32', ray: '#32CD32' },
-                    'yellow': { primary: '#DAA520', secondary: '#FFD700', surface: '#FFD700', ray: '#FFD700' },
-                    'orange': { primary: '#FF6347', secondary: '#FF8C00', surface: '#FF8C00', ray: '#FF8C00' },
-                    'red': { primary: '#B22222', secondary: '#FF6347', surface: '#FF6347', ray: '#FF6347' },
-                    'darkBlue': { primary: '#191970', secondary: '#4682B4', surface: '#4682B4', ray: '#4682B4' },
-                    'purple': { primary: '#4B0082', secondary: '#9932CC', surface: '#9932CC', ray: '#9932CC' },
-                    'brown': { primary: '#8B4513', secondary: '#D2691E', surface: '#D2691E', ray: '#D2691E' },
-                    'gray': { primary: '#2F4F4F', secondary: '#A9A9A9', surface: '#A9A9A9', ray: '#A9A9A9' }
-                };
-                return colorMapping[glassColorKey] || colorMapping['clear'];
+            getGlassPanelColor(k) {
+                const cm={'clear':{primary:'#1e3c72',secondary:'#2a5298',surface:'#00ff88',ray:'#00ff88'},'lightBlue':{primary:'#4682B4',secondary:'#87CEEB',surface:'#87CEEB',ray:'#87CEEB'},'green':{primary:'#228B22',secondary:'#32CD32',surface:'#32CD32',ray:'#32CD32'},'yellow':{primary:'#DAA520',secondary:'#FFD700',surface:'#FFD700',ray:'#FFD700'},'orange':{primary:'#FF6347',secondary:'#FF8C00',surface:'#FF8C00',ray:'#FF8C00'},'red':{primary:'#B22222',secondary:'#FF6347',surface:'#FF6347',ray:'#FF6347'},'darkBlue':{primary:'#191970',secondary:'#4682B4',surface:'#4682B4',ray:'#4682B4'},'purple':{primary:'#4B0082',secondary:'#9932CC',surface:'#9932CC',ray:'#9932CC'},'brown':{primary:'#8B4513',secondary:'#D2691E',surface:'#D2691E',ray:'#D2691E'},'gray':{primary:'#2F4F4F',secondary:'#A9A9A9',surface:'#A9A9A9',ray:'#A9A9A9'}};
+                return cm[k]||cm['clear'];
             }
-            
             autoScan() {
-                if (this.isAutoScanning) return;
-                
-                this.isAutoScanning = true;
-                const button = document.getElementById('autoScan');
-                button.textContent = '⏳ 掃描中...';
-                
-                const colors = ['clear', 'lightBlue',
+                if(this.isAutoScanning)return;
+                this.isAutoScanning=true;
+                const btn=document.getElementById('autoScan');
+                btn.textContent='⏳ 掃描中...';
+                const cols=['clear','lightBlue','green','yellow','orange','red','darkBlue','purple','brown','gray'];
+                let i=0;
+                const iv=setInterval(()=>{
+                    document.getElementById('glassColor').value=cols[i];
+                    this.updateSimulation();
+                    this.recordData();
+                    i++;
+                    if(i>=cols.length){clearInterval(iv);this.isAutoScanning=false;btn.textContent='🔄 自動掃描顏色';}
+                },500);
+            }
+            clearData() { this.dataRecords=[]; this.updateTable(); }
+        }
+        window.onload=()=>new SolarPanelSimulation();
+    </script>
+</body>
+</html>
