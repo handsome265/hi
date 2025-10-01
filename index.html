@@ -139,6 +139,16 @@
             box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
         }
         
+        .slider:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .slider:disabled::-webkit-slider-thumb {
+            cursor: not-allowed;
+            background: #666;
+        }
+        
         .value-display {
             width: 65px;
             text-align: right;
@@ -315,7 +325,7 @@
         }
         
         .refracted-ray {
-            background: linear-gradient(to right, #00ff88, transparent);
+            background: linear-gradient(to bottom, #00ff88, transparent);
             box-shadow: 0 0 8px #00ff88;
         }
         
@@ -355,7 +365,7 @@
     
     <div class="header">
         <h1>🐑🐑光電板光學效率模擬實驗</h1>
-        <p>研究光的入射角與折射，及玻璃紙顏色對太陽能板吸收效率的影響</p>
+        <p>研究垂直入射(90°)與玻璃紙顏色對太陽能板吸收效率的影響</p>
     </div>
     
     <div class="main-container">
@@ -364,8 +374,8 @@
                 <h3>🎛️ 控制變因</h3>
                 <div class="slider-container">
                     <label>入射角度 θ₁:</label>
-                    <input type="range" class="slider" id="incidentAngle" min="0" max="89" value="30" step="1">
-                    <span class="value-display" id="incidentAngleValue">30°</span>
+                    <input type="range" class="slider" id="incidentAngle" min="90" max="90" value="90" step="1" disabled>
+                    <span class="value-display" id="incidentAngleValue">90°</span>
                 </div>
                 <div class="slider-container">
                     <label>空氣折射率 n₁:</label>
@@ -386,10 +396,6 @@
             
             <div class="control-group">
                 <h3>⚙️ 操縱變因</h3>
-                <div class="button-group">
-                    <button class="btn active" id="normalMode">正常折射</button>
-                    <button class="btn" id="totalReflectionMode">全反射</button>
-                </div>
                 <div class="slider-container">
                     <label>表面粗糙度:</label>
                     <input type="range" class="slider" id="surfaceRoughness" min="0" max="100" value="0" step="5">
@@ -419,11 +425,11 @@
             </div>
             
             <div class="formula-box">
-                <h4>📐 物理公式</h4>
+                <h4>📐 物理公式 (垂直入射)</h4>
                 <div class="formula">
-<strong>Snell定律:</strong> n₁sin(θ₁) = n₂sin(θ₂)
-<strong>臨界角:</strong> θc = arcsin(n₁/n₂)
-<strong>反射率:</strong> R = (|rs|² + |rp|²)/2
+<strong>垂直入射:</strong> θ₁ = 90°
+<strong>折射角:</strong> θ₂ = 90° (垂直穿透)
+<strong>反射率:</strong> R = ((n₁-n₂)/(n₁+n₂))²
 <strong>玻璃透光率:</strong> Tglass = 光譜透光係數
 <strong>修正吸收效率:</strong> η = Tglass × (1-R) × [1-exp(-αL)]
 
@@ -436,9 +442,8 @@
         <div class="simulation-container">
             <div class="simulation-area" id="simulationArea">
                 <div class="info-display">
-                    <div><span class="label">入射角 θ₁:</span><span class="value" id="displayAngle">30.0°</span></div>
-                    <div><span class="label">折射角 θ₂:</span><span class="value" id="displayRefractAngle">-</span></div>
-                    <div><span class="label">臨界角 θc:</span><span class="value" id="displayCriticalAngle">-</span></div>
+                    <div><span class="label">入射角 θ₁:</span><span class="value" id="displayAngle">90.0°</span></div>
+                    <div><span class="label">折射角 θ₂:</span><span class="value" id="displayRefractAngle">90.0°</span></div>
                     <div><span class="label">玻璃透光率:</span><span class="value" id="displayGlassTransmission">100%</span></div>
                     <div><span class="label">反射率 R:</span><span class="value" id="displayReflection">-</span></div>
                     <div><span class="label">穿透率 T:</span><span class="value" id="displayTransmission">-</span></div>
@@ -455,12 +460,10 @@
                         <thead>
                             <tr>
                                 <th>序號</th>
-                                <th>入射角(°)</th>
-                                <th>折射角(°)</th>
                                 <th>玻璃颜色</th>
+                                <th>透光率(%)</th>
                                 <th>反射率(%)</th>
                                 <th>吸收效率(%)</th>
-                                <th>狀態</th>
                             </tr>
                         </thead>
                         <tbody id="efficiencyTableBody">
@@ -469,7 +472,7 @@
                 </div>
                 <div class="control-buttons">
                     <button class="btn" id="recordData">📝 記錄數據</button>
-                    <button class="btn" id="autoScan">🔄 自動掃描</button>
+                    <button class="btn" id="autoScan">🔄 自動掃描顏色</button>
                     <button class="btn" id="clearData">🗑️ 清除數據</button>
                 </div>
             </div>
@@ -479,7 +482,6 @@
     <script>
         class SolarPanelSimulation {
             constructor() {
-                this.mode = 'normal';
                 this.dataRecords = [];
                 this.isAutoScanning = false;
                 this.init();
@@ -491,46 +493,19 @@
             }
             
             setupEventListeners() {
-                // 滑桿事件
-                ['incidentAngle', 'n1', 'n2', 'thickness', 'surfaceRoughness', 'arCoating'].forEach(id => {
+                ['n1', 'n2', 'thickness', 'surfaceRoughness', 'arCoating'].forEach(id => {
                     document.getElementById(id).addEventListener('input', () => this.updateSimulation());
                 });
                 
-                // 玻璃颜色选择事件
                 document.getElementById('glassColor').addEventListener('change', () => this.updateSimulation());
-                
-                // 按鈕事件
-                document.getElementById('normalMode').addEventListener('click', () => {
-                    this.mode = 'normal';
-                    this.updateButtonStates();
-                    this.updateSimulation();
-                });
-                
-                document.getElementById('totalReflectionMode').addEventListener('click', () => {
-                    this.mode = 'totalReflection';
-                    this.updateButtonStates();
-                    this.updateSimulation();
-                });
-                
                 document.getElementById('recordData').addEventListener('click', () => this.recordData());
                 document.getElementById('autoScan').addEventListener('click', () => this.autoScan());
                 document.getElementById('clearData').addEventListener('click', () => this.clearData());
-                
-                this.updateButtonStates();
-            }
-            
-            updateButtonStates() {
-                document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
-                if (this.mode === 'normal') {
-                    document.getElementById('normalMode').classList.add('active');
-                } else {
-                    document.getElementById('totalReflectionMode').classList.add('active');
-                }
             }
             
             getParameters() {
                 return {
-                    angle: parseFloat(document.getElementById('incidentAngle').value),
+                    angle: 90,
                     n1: parseFloat(document.getElementById('n1').value) / 100,
                     n2: parseFloat(document.getElementById('n2').value) / 100,
                     thickness: parseFloat(document.getElementById('thickness').value),
@@ -541,14 +516,13 @@
             }
             
             updateDisplayValues(params) {
-                document.getElementById('incidentAngleValue').textContent = params.angle + '°';
+                document.getElementById('incidentAngleValue').textContent = '90°';
                 document.getElementById('n1Value').textContent = params.n1.toFixed(2);
                 document.getElementById('n2Value').textContent = params.n2.toFixed(2);
                 document.getElementById('thicknessValue').textContent = params.thickness + 'μm';
                 document.getElementById('surfaceRoughnessValue').textContent = params.roughness + '%';
                 document.getElementById('arCoatingValue').textContent = params.coating + '%';
                 
-                // 更新玻璃颜色显示
                 const glassColors = {
                     'clear': '透明',
                     'lightBlue': '淺藍',
@@ -565,52 +539,25 @@
             }
             
             calculateOptics(params) {
-                const { angle, n1, n2, thickness, roughness, coating, glassColor } = params;
-                const theta1 = angle * Math.PI / 180;
+                const { n1, n2, thickness, roughness, coating, glassColor } = params;
                 
-                // 不同颜色玻璃的透光率 (基于真实光谱吸收特性)
                 const glassTransmission = {
-                    'clear': 1.00,      // 透明玻璃
-                    'lightBlue': 0.85,  // 淺藍玻璃
-                    'green': 0.75,      // 綠色玻璃
-                    'yellow': 0.70,     // 黃色玻璃
-                    'orange': 0.60,     // 橙色玻璃
-                    'red': 0.55,        // 紅色玻璃
-                    'darkBlue': 0.45,   // 深藍玻璃
-                    'purple': 0.40,     // 紫色玻璃
-                    'brown': 0.35,      // 棕色玻璃
-                    'gray': 0.25        // 灰色玻璃
+                    'clear': 1.00,
+                    'lightBlue': 0.85,
+                    'green': 0.75,
+                    'yellow': 0.70,
+                    'orange': 0.60,
+                    'red': 0.55,
+                    'darkBlue': 0.45,
+                    'purple': 0.40,
+                    'brown': 0.35,
+                    'gray': 0.25
                 };
                 
                 const glassTransmissionCoeff = glassTransmission[glassColor];
                 
-                // 計算臨界角
-                const criticalAngle = Math.asin(Math.min(n1/n2, 1)) * 180 / Math.PI;
-                
-                // 計算折射角
-                const sinTheta2 = (n1 * Math.sin(theta1)) / n2;
-                let theta2 = null;
-                let isTotal = false;
-                
-                if (sinTheta2 > 1) {
-                    isTotal = true;
-                } else {
-                    theta2 = Math.asin(sinTheta2);
-                }
-                
-                // 計算反射係數
-                let reflectionCoeff = 0;
-                
-                if (isTotal && this.mode === 'totalReflection') {
-                    reflectionCoeff = 1.0;
-                } else if (!isTotal) {
-                    // 簡化的Fresnel公式
-                    const cosTheta1 = Math.cos(theta1);
-                    const cosTheta2 = Math.cos(theta2);
-                    const rs = (n1 * cosTheta1 - n2 * cosTheta2) / (n1 * cosTheta1 + n2 * cosTheta2);
-                    const rp = (n1 * cosTheta2 - n2 * cosTheta1) / (n1 * cosTheta2 + n2 * cosTheta1);
-                    reflectionCoeff = 0.5 * (rs * rs + rp * rp);
-                }
+                // 垂直入射的反射係數 (簡化的Fresnel公式)
+                let reflectionCoeff = Math.pow((n1 - n2) / (n1 + n2), 2);
                 
                 // 表面效應
                 if (roughness > 0) {
@@ -624,25 +571,19 @@
                 reflectionCoeff = Math.max(0, Math.min(1, reflectionCoeff));
                 const transmissionCoeff = 1 - reflectionCoeff;
                 
-                // 計算吸收效率 (包含玻璃颜色影響)
-                const absorptionCoeff = 1000; // 簡化的吸收係數
-                const pathLength = thickness / 1000; // 轉換為mm
+                // 計算吸收效率
+                const absorptionCoeff = 1000;
+                const pathLength = thickness / 1000;
                 const absorption = 1 - Math.exp(-absorptionCoeff * pathLength);
                 
-                // 最終效率 = 玻璃透光率 × 界面透過率 × 材料吸收率
                 let efficiency = glassTransmissionCoeff * transmissionCoeff * absorption * 100;
-                
                 efficiency = Math.max(0, Math.min(100, efficiency));
                 
                 return {
-                    incidentAngle: angle,
-                    refractedAngle: theta2 ? theta2 * 180 / Math.PI : null,
-                    criticalAngle,
                     reflectionCoeff,
                     transmissionCoeff,
                     glassTransmissionCoeff,
-                    efficiency,
-                    isTotal
+                    efficiency
                 };
             }
             
@@ -652,35 +593,27 @@
                 
                 const results = this.calculateOptics(params);
                 
-                // 更新顯示
-                document.getElementById('displayAngle').textContent = results.incidentAngle.toFixed(1) + '°';
-                document.getElementById('displayRefractAngle').textContent = 
-                    results.refractedAngle ? results.refractedAngle.toFixed(1) + '°' : '全反射';
-                document.getElementById('displayCriticalAngle').textContent = results.criticalAngle.toFixed(1) + '°';
+                document.getElementById('displayAngle').textContent = '90.0°';
+                document.getElementById('displayRefractAngle').textContent = '90.0°';
                 document.getElementById('displayGlassTransmission').textContent = (results.glassTransmissionCoeff * 100).toFixed(0) + '%';
                 document.getElementById('displayReflection').textContent = (results.reflectionCoeff * 100).toFixed(1) + '%';
                 document.getElementById('displayTransmission').textContent = (results.transmissionCoeff * 100).toFixed(1) + '%';
                 document.getElementById('displayEfficiency').textContent = results.efficiency.toFixed(1) + '%';
                 
-                // 更新視覺化
                 this.updateVisualization(results, params);
             }
             
             updateVisualization(results, params) {
                 const area = document.getElementById('simulationArea');
-                
-                // 清除舊的光線和面板
                 area.querySelectorAll('.light-ray, .solar-panel').forEach(el => el.remove());
                 
                 const centerX = 300;
-                const centerY = 225;
+                const centerY = 150;
                 const panelWidth = 180;
                 const panelHeight = 60;
                 
-                // 获取玻璃片颜色
                 const glassColor = this.getGlassPanelColor(params.glassColor);
                 
-                // 創建太陽能板，应用玻璃颜色
                 const panel = document.createElement('div');
                 panel.className = 'solar-panel';
                 panel.style.left = (centerX - panelWidth/2) + 'px';
@@ -688,7 +621,7 @@
                 panel.style.width = panelWidth + 'px';
                 panel.style.height = panelHeight + 'px';
                 panel.style.background = `linear-gradient(135deg, ${glassColor.primary}, ${glassColor.secondary}, ${glassColor.primary})`;
-                panel.style.opacity = results.glassTransmissionCoeff * 0.8 + 0.2; // 根据透光率调整透明度
+                panel.style.opacity = results.glassTransmissionCoeff * 0.8 + 0.2;
                 
                 const surface = document.createElement('div');
                 surface.className = 'panel-surface';
@@ -696,33 +629,31 @@
                 panel.appendChild(surface);
                 area.appendChild(panel);
                 
-                // 創建光線，根据玻璃颜色调整光线颜色
-                this.createRay(area, centerX - 120, centerY, 120, -results.incidentAngle, 'incident-ray');
-                this.createRay(area, centerX, centerY, 100, results.incidentAngle, 'reflected-ray');
+                // 垂直入射光線（從上方）
+                this.createVerticalRay(area, centerX, 30, centerY - panelHeight/2 - 30, 'incident-ray');
                 
-                if (!results.isTotal && results.refractedAngle !== null) {
-                    this.createColoredRay(area, centerX, centerY + 30, 80, results.refractedAngle, 'refracted-ray', glassColor.ray);
-                }
+                // 垂直折射光線（向下穿透）
+                this.createVerticalColoredRay(area, centerX, centerY + panelHeight/2, 120, 'refracted-ray', glassColor.ray);
             }
             
-            createRay(container, x, y, length, angle, className) {
+            createVerticalRay(container, x, y, length, className) {
                 const ray = document.createElement('div');
                 ray.className = `light-ray ${className}`;
-                ray.style.left = x + 'px';
+                ray.style.left = (x - 2) + 'px';
                 ray.style.top = y + 'px';
-                ray.style.width = length + 'px';
-                ray.style.transform = `rotate(${angle}deg)`;
+                ray.style.width = '4px';
+                ray.style.height = length + 'px';
                 container.appendChild(ray);
             }
             
-            createColoredRay(container, x, y, length, angle, className, color) {
+            createVerticalColoredRay(container, x, y, length, className, color) {
                 const ray = document.createElement('div');
                 ray.className = `light-ray ${className}`;
-                ray.style.left = x + 'px';
+                ray.style.left = (x - 2) + 'px';
                 ray.style.top = y + 'px';
-                ray.style.width = length + 'px';
-                ray.style.transform = `rotate(${angle}deg)`;
-                ray.style.background = `linear-gradient(to right, ${color}, transparent)`;
+                ray.style.width = '4px';
+                ray.style.height = length + 'px';
+                ray.style.background = `linear-gradient(to bottom, ${color}, transparent)`;
                 ray.style.boxShadow = `0 0 8px ${color}`;
                 container.appendChild(ray);
             }
@@ -746,12 +677,10 @@
                 
                 this.dataRecords.push({
                     id: this.dataRecords.length + 1,
-                    angle: results.incidentAngle,
-                    refracted: results.refractedAngle,
                     glassColor: glassColors[params.glassColor],
+                    transmission: results.glassTransmissionCoeff * 100,
                     reflection: results.reflectionCoeff * 100,
-                    efficiency: results.efficiency,
-                    status: results.isTotal ? '全反射' : '正常'
+                    efficiency: results.efficiency
                 });
                 
                 this.updateTable();
@@ -765,12 +694,10 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${record.id}</td>
-                        <td>${record.angle.toFixed(1)}</td>
-                        <td>${record.refracted ? record.refracted.toFixed(1) : 'N/A'}</td>
                         <td style="color: ${this.getGlassColorCode(record.glassColor)};">${record.glassColor}</td>
+                        <td>${record.transmission.toFixed(0)}</td>
                         <td>${record.reflection.toFixed(1)}</td>
                         <td class="efficiency-cell">${record.efficiency.toFixed(1)}</td>
-                        <td>${record.status}</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -794,103 +721,8 @@
             
             getGlassPanelColor(glassColorKey) {
                 const colorMapping = {
-                    'clear': {
-                        primary: '#1e3c72',
-                        secondary: '#2a5298',
-                        surface: '#00ff88',
-                        ray: '#00ff88'
-                    },
-                    'lightBlue': {
-                        primary: '#4682B4',
-                        secondary: '#87CEEB',
-                        surface: '#87CEEB',
-                        ray: '#87CEEB'
-                    },
-                    'green': {
-                        primary: '#228B22',
-                        secondary: '#32CD32',
-                        surface: '#32CD32',
-                        ray: '#32CD32'
-                    },
-                    'yellow': {
-                        primary: '#DAA520',
-                        secondary: '#FFD700',
-                        surface: '#FFD700',
-                        ray: '#FFD700'
-                    },
-                    'orange': {
-                        primary: '#FF6347',
-                        secondary: '#FF8C00',
-                        surface: '#FF8C00',
-                        ray: '#FF8C00'
-                    },
-                    'red': {
-                        primary: '#B22222',
-                        secondary: '#FF6347',
-                        surface: '#FF6347',
-                        ray: '#FF6347'
-                    },
-                    'darkBlue': {
-                        primary: '#191970',
-                        secondary: '#4682B4',
-                        surface: '#4682B4',
-                        ray: '#4682B4'
-                    },
-                    'purple': {
-                        primary: '#4B0082',
-                        secondary: '#9932CC',
-                        surface: '#9932CC',
-                        ray: '#9932CC'
-                    },
-                    'brown': {
-                        primary: '#8B4513',
-                        secondary: '#D2691E',
-                        surface: '#D2691E',
-                        ray: '#D2691E'
-                    },
-                    'gray': {
-                        primary: '#2F4F4F',
-                        secondary: '#A9A9A9',
-                        surface: '#A9A9A9',
-                        ray: '#A9A9A9'
-                    }
-                };
-                
-                return colorMapping[glassColorKey] || colorMapping['clear'];
-            }
-            
-            autoScan() {
-                if (this.isAutoScanning) return;
-                
-                this.isAutoScanning = true;
-                const button = document.getElementById('autoScan');
-                button.textContent = '⏳ 掃描中...';
-                
-                let angle = 0;
-                const interval = setInterval(() => {
-                    document.getElementById('incidentAngle').value = angle;
-                    this.updateSimulation();
-                    this.recordData();
-                    
-                    angle += 5;
-                    if (angle > 85) {
-                        clearInterval(interval);
-                        this.isAutoScanning = false;
-                        button.textContent = '🔄 自動掃描';
-                    }
-                }, 200);
-            }
-            
-            clearData() {
-                this.dataRecords = [];
-                this.updateTable();
-            }
-        }
-        
-        // 啟動模擬
-        window.onload = () => {
-            new SolarPanelSimulation();
-        };
-    </script>
-</body>
-</html>
+                    'clear': { primary: '#1e3c72', secondary: '#2a5298', surface: '#00ff88', ray: '#00ff88' },
+                    'lightBlue': { primary: '#4682B4', secondary: '#87CEEB', surface: '#87CEEB', ray: '#87CEEB' },
+                    'green': { primary: '#228B22', secondary: '#32CD32', surface: '#32CD32', ray: '#32CD32' },
+                    'yellow': { primary: '#DAA520', secondary: '#FFD700', surface: '#FFD700', ray: '#FFD700' },
+                    'orange': { primary: '#
