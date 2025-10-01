@@ -157,12 +157,6 @@
             font-weight: bold;
         }
         
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin: 15px 0;
-        }
-        
         .btn {
             padding: 12px 18px;
             background: linear-gradient(45deg, #00ff88, #00cc6a);
@@ -180,12 +174,6 @@
             background: linear-gradient(45deg, #00cc6a, #009955);
             box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
             transform: translateY(-2px);
-        }
-        
-        .btn.active {
-            background: linear-gradient(45deg, #ff6b35, #ff4500);
-            color: white;
-            box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
         }
         
         .formula-box {
@@ -309,19 +297,12 @@
         
         .light-ray {
             position: absolute;
-            height: 4px;
-            transform-origin: left center;
             border-radius: 2px;
         }
         
         .incident-ray {
-            background: linear-gradient(to right, transparent, #ffff00, #ffff00);
+            background: linear-gradient(to bottom, transparent, #ffff00, #ffff00);
             box-shadow: 0 0 8px #ffff00;
-        }
-        
-        .reflected-ray {
-            background: linear-gradient(to right, #ff6b35, transparent);
-            box-shadow: 0 0 8px #ff6b35;
         }
         
         .refracted-ray {
@@ -524,16 +505,9 @@
                 document.getElementById('arCoatingValue').textContent = params.coating + '%';
                 
                 const glassColors = {
-                    'clear': '透明',
-                    'lightBlue': '淺藍',
-                    'green': '綠色',
-                    'yellow': '黃色',
-                    'orange': '橙色',
-                    'red': '紅色',
-                    'darkBlue': '深藍',
-                    'purple': '紫色',
-                    'brown': '棕色',
-                    'gray': '灰色'
+                    'clear': '透明', 'lightBlue': '淺藍', 'green': '綠色', 'yellow': '黃色',
+                    'orange': '橙色', 'red': '紅色', 'darkBlue': '深藍', 'purple': '紫色',
+                    'brown': '棕色', 'gray': '灰色'
                 };
                 document.getElementById('glassColorValue').textContent = glassColors[params.glassColor];
             }
@@ -542,36 +516,19 @@
                 const { n1, n2, thickness, roughness, coating, glassColor } = params;
                 
                 const glassTransmission = {
-                    'clear': 1.00,
-                    'lightBlue': 0.85,
-                    'green': 0.75,
-                    'yellow': 0.70,
-                    'orange': 0.60,
-                    'red': 0.55,
-                    'darkBlue': 0.45,
-                    'purple': 0.40,
-                    'brown': 0.35,
-                    'gray': 0.25
+                    'clear': 1.00, 'lightBlue': 0.85, 'green': 0.75, 'yellow': 0.70, 'orange': 0.60,
+                    'red': 0.55, 'darkBlue': 0.45, 'purple': 0.40, 'brown': 0.35, 'gray': 0.25
                 };
                 
                 const glassTransmissionCoeff = glassTransmission[glassColor];
-                
-                // 垂直入射的反射係數 (簡化的Fresnel公式)
                 let reflectionCoeff = Math.pow((n1 - n2) / (n1 + n2), 2);
                 
-                // 表面效應
-                if (roughness > 0) {
-                    reflectionCoeff *= (1 - roughness / 100 * 0.3);
-                }
-                
-                if (coating > 0) {
-                    reflectionCoeff *= (1 - coating / 100 * 0.8);
-                }
+                if (roughness > 0) reflectionCoeff *= (1 - roughness / 100 * 0.3);
+                if (coating > 0) reflectionCoeff *= (1 - coating / 100 * 0.8);
                 
                 reflectionCoeff = Math.max(0, Math.min(1, reflectionCoeff));
                 const transmissionCoeff = 1 - reflectionCoeff;
                 
-                // 計算吸收效率
                 const absorptionCoeff = 1000;
                 const pathLength = thickness / 1000;
                 const absorption = 1 - Math.exp(-absorptionCoeff * pathLength);
@@ -579,18 +536,12 @@
                 let efficiency = glassTransmissionCoeff * transmissionCoeff * absorption * 100;
                 efficiency = Math.max(0, Math.min(100, efficiency));
                 
-                return {
-                    reflectionCoeff,
-                    transmissionCoeff,
-                    glassTransmissionCoeff,
-                    efficiency
-                };
+                return { reflectionCoeff, transmissionCoeff, glassTransmissionCoeff, efficiency };
             }
             
             updateSimulation() {
                 const params = this.getParameters();
                 this.updateDisplayValues(params);
-                
                 const results = this.calculateOptics(params);
                 
                 document.getElementById('displayAngle').textContent = '90.0°';
@@ -608,7 +559,7 @@
                 area.querySelectorAll('.light-ray, .solar-panel').forEach(el => el.remove());
                 
                 const centerX = 300;
-                const centerY = 150;
+                const centerY = 225;
                 const panelWidth = 180;
                 const panelHeight = 60;
                 
@@ -629,10 +580,7 @@
                 panel.appendChild(surface);
                 area.appendChild(panel);
                 
-                // 垂直入射光線（從上方）
                 this.createVerticalRay(area, centerX, 30, centerY - panelHeight/2 - 30, 'incident-ray');
-                
-                // 垂直折射光線（向下穿透）
                 this.createVerticalColoredRay(area, centerX, centerY + panelHeight/2, 120, 'refracted-ray', glassColor.ray);
             }
             
@@ -663,16 +611,9 @@
                 const results = this.calculateOptics(params);
                 
                 const glassColors = {
-                    'clear': '透明',
-                    'lightBlue': '淺藍',
-                    'green': '綠色',
-                    'yellow': '黃色',
-                    'orange': '橙色',
-                    'red': '紅色',
-                    'darkBlue': '深藍',
-                    'purple': '紫色',
-                    'brown': '棕色',
-                    'gray': '灰色'
+                    'clear': '透明', 'lightBlue': '淺藍', 'green': '綠色', 'yellow': '黃色',
+                    'orange': '橙色', 'red': '紅色', 'darkBlue': '深藍', 'purple': '紫色',
+                    'brown': '棕色', 'gray': '灰色'
                 };
                 
                 this.dataRecords.push({
@@ -705,16 +646,9 @@
             
             getGlassColorCode(colorName) {
                 const colorMap = {
-                    '透明': '#ffffff',
-                    '淺藍': '#87CEEB',
-                    '綠色': '#32CD32',
-                    '黃色': '#FFD700',
-                    '橙色': '#FF8C00',
-                    '紅色': '#FF6347',
-                    '深藍': '#4682B4',
-                    '紫色': '#9932CC',
-                    '棕色': '#D2691E',
-                    '灰色': '#A9A9A9'
+                    '透明': '#ffffff', '淺藍': '#87CEEB', '綠色': '#32CD32', '黃色': '#FFD700',
+                    '橙色': '#FF8C00', '紅色': '#FF6347', '深藍': '#4682B4', '紫色': '#9932CC',
+                    '棕色': '#D2691E', '灰色': '#A9A9A9'
                 };
                 return colorMap[colorName] || '#ffffff';
             }
@@ -725,4 +659,21 @@
                     'lightBlue': { primary: '#4682B4', secondary: '#87CEEB', surface: '#87CEEB', ray: '#87CEEB' },
                     'green': { primary: '#228B22', secondary: '#32CD32', surface: '#32CD32', ray: '#32CD32' },
                     'yellow': { primary: '#DAA520', secondary: '#FFD700', surface: '#FFD700', ray: '#FFD700' },
-                    'orange': { primary: '#
+                    'orange': { primary: '#FF6347', secondary: '#FF8C00', surface: '#FF8C00', ray: '#FF8C00' },
+                    'red': { primary: '#B22222', secondary: '#FF6347', surface: '#FF6347', ray: '#FF6347' },
+                    'darkBlue': { primary: '#191970', secondary: '#4682B4', surface: '#4682B4', ray: '#4682B4' },
+                    'purple': { primary: '#4B0082', secondary: '#9932CC', surface: '#9932CC', ray: '#9932CC' },
+                    'brown': { primary: '#8B4513', secondary: '#D2691E', surface: '#D2691E', ray: '#D2691E' },
+                    'gray': { primary: '#2F4F4F', secondary: '#A9A9A9', surface: '#A9A9A9', ray: '#A9A9A9' }
+                };
+                return colorMapping[glassColorKey] || colorMapping['clear'];
+            }
+            
+            autoScan() {
+                if (this.isAutoScanning) return;
+                
+                this.isAutoScanning = true;
+                const button = document.getElementById('autoScan');
+                button.textContent = '⏳ 掃描中...';
+                
+                const colors = ['clear', 'lightBlue',
