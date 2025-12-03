@@ -54,7 +54,7 @@
     <div class="copyright-watermark">作者:林俐陽，請勿盜竊</div>
     <div class="header">
         <h1>🐑🐑光電板光學效率模擬實驗</h1>
-        <p>研究垂直入射(90°)與玻璃紙顏色對太陽能板吸收效率的影響</p>
+        <p>研究垂直入射(90°)與玻璃紙顏色對太陽能板吸收效率的影響 (板厚: 3.2mm)</p>
     </div>
     <div class="main-container">
         <div class="control-panel">
@@ -77,8 +77,8 @@
                 </div>
                 <div class="slider-container">
                     <label>材料厚度:</label>
-                    <input type="range" class="slider" id="thickness" min="50" max="5000" value="3200" step="50">
-                    <span class="value-display" id="thicknessValue">3.2mm</span>
+                    <input type="range" class="slider" id="thickness" min="3200" max="3200" value="3200" disabled>
+                    <span class="value-display">3.2mm</span>
                 </div>
             </div>
             <div class="control-group">
@@ -111,8 +111,10 @@
                 </div>
             </div>
             <div class="formula-box">
-                <h4>📐 物理公式(垂直入射)</h4>
-                <div class="formula">垂直入射: θ₁=90° 折射角: θ₂=90° 反射率: R=((n₁-n₂)/(n₁+n₂))² 修正吸收效率: η=Tglass×(1-R)×[1-exp(-αL)]</div>
+                <h4>📐 光學效率公式(垂直入射)</h4>
+                <div class="formula">垂直入射: θ₁=90°, θ₂=90°
+菲涅爾反射率: R = ((n₁-n₂)/(n₁+n₂))²
+光學效率: η = T_玻璃 × (1 - R)</div>
             </div>
         </div>
         <div class="simulation-container">
@@ -120,18 +122,18 @@
                 <div class="info-display">
                     <div><span class="label">入射角θ₁:</span><span class="value">90.0°</span></div>
                     <div><span class="label">折射角θ₂:</span><span class="value">90.0°</span></div>
-                    <div><span class="label">材料厚度:</span><span class="value" id="displayThickness">3.2mm</span></div>
+                    <div><span class="label">材料厚度:</span><span class="value">3.2mm</span></div>
                     <div><span class="label">玻璃透光率:</span><span class="value" id="displayGlassTransmission">100%</span></div>
                     <div><span class="label">反射率R:</span><span class="value" id="displayReflection">-</span></div>
                     <div><span class="label">穿透率T:</span><span class="value" id="displayTransmission">-</span></div>
-                    <div style="border-top:1px solid #00ff88;margin-top:8px;padding-top:8px;"><span class="label">吸收效率η:</span><span class="value" id="displayEfficiency" style="font-size:16px;">-</span></div>
+                    <div style="border-top:1px solid #00ff88;margin-top:8px;padding-top:8px;"><span class="label">光學效率η:</span><span class="value" id="displayEfficiency" style="font-size:16px;">-</span></div>
                 </div>
             </div>
             <div class="efficiency-section">
                 <h3>📊 數據記錄表</h3>
                 <div class="table-container">
                     <table class="table">
-                        <thead><tr><th>序號</th><th>玻璃颜色</th><th>厚度</th><th>透光率(%)</th><th>反射率(%)</th><th>吸收效率(%)</th></tr></thead>
+                        <thead><tr><th>序號</th><th>玻璃颜色</th><th>透光率(%)</th><th>反射率(%)</th><th>光學效率(%)</th></tr></thead>
                         <tbody id="efficiencyTableBody"></tbody>
                     </table>
                 </div>
@@ -148,41 +150,53 @@
             constructor() { this.dataRecords = []; this.isAutoScanning = false; this.init(); }
             init() { this.setupEventListeners(); this.updateSimulation(); }
             setupEventListeners() {
-                ['n1','n2','thickness','surfaceRoughness','arCoating'].forEach(id => document.getElementById(id).addEventListener('input',()=>this.updateSimulation()));
+                ['n1','n2','surfaceRoughness','arCoating'].forEach(id => document.getElementById(id).addEventListener('input',()=>this.updateSimulation()));
                 document.getElementById('glassColor').addEventListener('change',()=>this.updateSimulation());
                 document.getElementById('recordData').addEventListener('click',()=>this.recordData());
                 document.getElementById('autoScan').addEventListener('click',()=>this.autoScan());
                 document.getElementById('clearData').addEventListener('click',()=>this.clearData());
             }
-            getParameters() { return {angle:90,n1:parseFloat(document.getElementById('n1').value)/100,n2:parseFloat(document.getElementById('n2').value)/100,thickness:parseFloat(document.getElementById('thickness').value),roughness:parseFloat(document.getElementById('surfaceRoughness').value),coating:parseFloat(document.getElementById('arCoating').value),glassColor:document.getElementById('glassColor').value}; }
+            getParameters() { 
+                return {
+                    angle:90,
+                    n1:parseFloat(document.getElementById('n1').value)/100,
+                    n2:parseFloat(document.getElementById('n2').value)/100,
+                    thickness:3.2,
+                    roughness:parseFloat(document.getElementById('surfaceRoughness').value),
+                    coating:parseFloat(document.getElementById('arCoating').value),
+                    glassColor:document.getElementById('glassColor').value
+                }; 
+            }
             updateDisplayValues(p) {
                 document.getElementById('n1Value').textContent=p.n1.toFixed(2);
                 document.getElementById('n2Value').textContent=p.n2.toFixed(2);
-                
-                // 智能厚度顯示
-                let thicknessDisplay;
-                if (p.thickness >= 1000) {
-                    thicknessDisplay = (p.thickness / 1000).toFixed(1) + 'mm';
-                } else {
-                    thicknessDisplay = p.thickness + 'μm';
-                }
-                document.getElementById('thicknessValue').textContent = thicknessDisplay;
-                document.getElementById('displayThickness').textContent = thicknessDisplay;
-                
                 document.getElementById('surfaceRoughnessValue').textContent=p.roughness+'%';
                 document.getElementById('arCoatingValue').textContent=p.coating+'%';
                 const c={'clear':'透明','lightBlue':'淺藍','green':'綠色','yellow':'黃色','orange':'橙色','red':'紅色','darkBlue':'深藍','purple':'紫色','brown':'棕色','gray':'灰色'};
                 document.getElementById('glassColorValue').textContent=c[p.glassColor];
             }
             calculateOptics(p) {
+                // 玻璃透光率
                 const gt={'clear':1,'lightBlue':.85,'green':.75,'yellow':.7,'orange':.6,'red':.55,'darkBlue':.45,'purple':.4,'brown':.35,'gray':.25};
                 const gtc=gt[p.glassColor];
+                
+                // 菲涅爾反射率（垂直入射）
                 let rc=Math.pow((p.n1-p.n2)/(p.n1+p.n2),2);
+                
+                // 表面粗糙度修正（降低反射）
                 if(p.roughness>0)rc*=(1-p.roughness/100*.3);
+                
+                // 抗反射塗層修正（降低反射）
                 if(p.coating>0)rc*=(1-p.coating/100*.8);
+                
                 rc=Math.max(0,Math.min(1,rc));
-                const tc=1-rc,ac=1000,pl=p.thickness/1000,ab=1-Math.exp(-ac*pl);
-                let eff=gtc*tc*ab*100;
+                
+                // 穿透率
+                const tc=1-rc;
+                
+                // 光學效率 = 玻璃透光率 × 穿透率
+                let eff=gtc*tc*100;
+                
                 return {reflectionCoeff:rc,transmissionCoeff:tc,glassTransmissionCoeff:gtc,efficiency:Math.max(0,Math.min(100,eff))};
             }
             updateSimulation() {
@@ -237,8 +251,7 @@
             recordData() {
                 const p=this.getParameters(),r=this.calculateOptics(p);
                 const gc={'clear':'透明','lightBlue':'淺藍','green':'綠色','yellow':'黃色','orange':'橙色','red':'紅色','darkBlue':'深藍','purple':'紫色','brown':'棕色','gray':'灰色'};
-                let thicknessDisplay = p.thickness >= 1000 ? (p.thickness/1000).toFixed(1)+'mm' : p.thickness+'μm';
-                this.dataRecords.push({id:this.dataRecords.length+1,glassColor:gc[p.glassColor],thickness:thicknessDisplay,transmission:r.glassTransmissionCoeff*100,reflection:r.reflectionCoeff*100,efficiency:r.efficiency});
+                this.dataRecords.push({id:this.dataRecords.length+1,glassColor:gc[p.glassColor],transmission:r.glassTransmissionCoeff*100,reflection:r.reflectionCoeff*100,efficiency:r.efficiency});
                 this.updateTable();
             }
             updateTable() {
@@ -246,7 +259,7 @@
                 tb.innerHTML='';
                 this.dataRecords.forEach(rec=>{
                     const row=document.createElement('tr');
-                    row.innerHTML=`<td>${rec.id}</td><td style="color:${this.getGlassColorCode(rec.glassColor)};">${rec.glassColor}</td><td>${rec.thickness}</td><td>${rec.transmission.toFixed(0)}</td><td>${rec.reflection.toFixed(1)}</td><td class="efficiency-cell">${rec.efficiency.toFixed(1)}</td>`;
+                    row.innerHTML=`<td>${rec.id}</td><td style="color:${this.getGlassColorCode(rec.glassColor)};">${rec.glassColor}</td><td>${rec.transmission.toFixed(0)}</td><td>${rec.reflection.toFixed(1)}</td><td class="efficiency-cell">${rec.efficiency.toFixed(1)}</td>`;
                     tb.appendChild(row);
                 });
             }
