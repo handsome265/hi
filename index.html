@@ -23,7 +23,7 @@
         .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #00ff88; border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
         .slider:disabled { opacity: 0.5; cursor: not-allowed; }
         .slider:disabled::-webkit-slider-thumb { cursor: not-allowed; background: #666; }
-        .value-display { width: 65px; text-align: right; font-size: 13px; color: #00ff88; font-weight: bold; }
+        .value-display { width: 85px; text-align: right; font-size: 13px; color: #00ff88; font-weight: bold; }
         .btn { padding: 12px 18px; background: linear-gradient(45deg, #00ff88, #00cc6a); color: #000; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.3s ease; flex: 1; }
         .btn:hover { background: linear-gradient(45deg, #00cc6a, #009955); box-shadow: 0 0 15px rgba(0, 255, 136, 0.5); transform: translateY(-2px); }
         .formula-box { background: linear-gradient(135deg, #2a2a2a, #1a1a1a); padding: 20px; border-radius: 10px; margin: 15px 0; border: 2px solid #444; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); }
@@ -77,8 +77,8 @@
                 </div>
                 <div class="slider-container">
                     <label>材料厚度:</label>
-                    <input type="range" class="slider" id="thickness" min="50" max="500" value="200" step="10">
-                    <span class="value-display" id="thicknessValue">200μm</span>
+                    <input type="range" class="slider" id="thickness" min="50" max="5000" value="3200" step="50">
+                    <span class="value-display" id="thicknessValue">3.2mm</span>
                 </div>
             </div>
             <div class="control-group">
@@ -105,7 +105,7 @@
                         <option value="darkBlue">深藍(45%)</option>
                         <option value="purple">紫色(40%)</option>
                         <option value="brown">棕色(35%)</option>
-                        <option value="gar">灰色(25%)</option>
+                        <option value="gray">灰色(25%)</option>
                     </select>
                     <span class="value-display" id="glassColorValue">透明</span>
                 </div>
@@ -120,6 +120,7 @@
                 <div class="info-display">
                     <div><span class="label">入射角θ₁:</span><span class="value">90.0°</span></div>
                     <div><span class="label">折射角θ₂:</span><span class="value">90.0°</span></div>
+                    <div><span class="label">材料厚度:</span><span class="value" id="displayThickness">3.2mm</span></div>
                     <div><span class="label">玻璃透光率:</span><span class="value" id="displayGlassTransmission">100%</span></div>
                     <div><span class="label">反射率R:</span><span class="value" id="displayReflection">-</span></div>
                     <div><span class="label">穿透率T:</span><span class="value" id="displayTransmission">-</span></div>
@@ -130,7 +131,7 @@
                 <h3>📊 數據記錄表</h3>
                 <div class="table-container">
                     <table class="table">
-                        <thead><tr><th>序號</th><th>玻璃颜色</th><th>透光率(%)</th><th>反射率(%)</th><th>吸收效率(%)</th></tr></thead>
+                        <thead><tr><th>序號</th><th>玻璃颜色</th><th>厚度</th><th>透光率(%)</th><th>反射率(%)</th><th>吸收效率(%)</th></tr></thead>
                         <tbody id="efficiencyTableBody"></tbody>
                     </table>
                 </div>
@@ -157,7 +158,17 @@
             updateDisplayValues(p) {
                 document.getElementById('n1Value').textContent=p.n1.toFixed(2);
                 document.getElementById('n2Value').textContent=p.n2.toFixed(2);
-                document.getElementById('thicknessValue').textContent=p.thickness+'μm';
+                
+                // 智能厚度顯示
+                let thicknessDisplay;
+                if (p.thickness >= 1000) {
+                    thicknessDisplay = (p.thickness / 1000).toFixed(1) + 'mm';
+                } else {
+                    thicknessDisplay = p.thickness + 'μm';
+                }
+                document.getElementById('thicknessValue').textContent = thicknessDisplay;
+                document.getElementById('displayThickness').textContent = thicknessDisplay;
+                
                 document.getElementById('surfaceRoughnessValue').textContent=p.roughness+'%';
                 document.getElementById('arCoatingValue').textContent=p.coating+'%';
                 const c={'clear':'透明','lightBlue':'淺藍','green':'綠色','yellow':'黃色','orange':'橙色','red':'紅色','darkBlue':'深藍','purple':'紫色','brown':'棕色','gray':'灰色'};
@@ -226,7 +237,8 @@
             recordData() {
                 const p=this.getParameters(),r=this.calculateOptics(p);
                 const gc={'clear':'透明','lightBlue':'淺藍','green':'綠色','yellow':'黃色','orange':'橙色','red':'紅色','darkBlue':'深藍','purple':'紫色','brown':'棕色','gray':'灰色'};
-                this.dataRecords.push({id:this.dataRecords.length+1,glassColor:gc[p.glassColor],transmission:r.glassTransmissionCoeff*100,reflection:r.reflectionCoeff*100,efficiency:r.efficiency});
+                let thicknessDisplay = p.thickness >= 1000 ? (p.thickness/1000).toFixed(1)+'mm' : p.thickness+'μm';
+                this.dataRecords.push({id:this.dataRecords.length+1,glassColor:gc[p.glassColor],thickness:thicknessDisplay,transmission:r.glassTransmissionCoeff*100,reflection:r.reflectionCoeff*100,efficiency:r.efficiency});
                 this.updateTable();
             }
             updateTable() {
@@ -234,7 +246,7 @@
                 tb.innerHTML='';
                 this.dataRecords.forEach(rec=>{
                     const row=document.createElement('tr');
-                    row.innerHTML=`<td>${rec.id}</td><td style="color:${this.getGlassColorCode(rec.glassColor)};">${rec.glassColor}</td><td>${rec.transmission.toFixed(0)}</td><td>${rec.reflection.toFixed(1)}</td><td class="efficiency-cell">${rec.efficiency.toFixed(1)}</td>`;
+                    row.innerHTML=`<td>${rec.id}</td><td style="color:${this.getGlassColorCode(rec.glassColor)};">${rec.glassColor}</td><td>${rec.thickness}</td><td>${rec.transmission.toFixed(0)}</td><td>${rec.reflection.toFixed(1)}</td><td class="efficiency-cell">${rec.efficiency.toFixed(1)}</td>`;
                     tb.appendChild(row);
                 });
             }
