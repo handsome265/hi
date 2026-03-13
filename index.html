@@ -8,349 +8,385 @@
     <style>
         * { box-sizing: border-box; }
         body { background-color: #000; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; min-height: 100vh; }
-        .copyright-watermark { position: fixed; top: 20px; right: 20px; color: white; font-size: 16px; font-weight: bold; background: rgba(0, 0, 0, 0.7); padding: 8px 15px; border-radius: 8px; border: 2px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(5px); z-index: 1000; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); user-select: none; pointer-events: none; }
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { color: #00ff88; font-size: 2.5em; text-shadow: 0 0 10px #00ff88; margin: 0; }
         .header p { color: #ccc; font-size: 1.1em; margin-top: 10px; }
         .main-container { display: grid; grid-template-columns: 350px 1fr; gap: 25px; max-width: 1400px; margin: 0 auto; }
-        .control-panel { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 25px; border-radius: 15px; border: 2px solid #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); height: fit-content; }
+        .control-panel { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 25px; border-radius: 15px; border: 2px solid #00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.3); height: fit-content; }
         .simulation-container { display: flex; flex-direction: column; gap: 20px; }
-        .simulation-area { background: #111; height: 450px; border: 3px solid #00ff88; border-radius: 15px; position: relative; overflow: hidden; box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
-        .control-group { margin-bottom: 25px; background: rgba(0, 255, 136, 0.1); padding: 15px; border-radius: 10px; }
-        .control-group h3 { color: #00ff88; margin: 0 0 15px 0; font-size: 1.2em; text-shadow: 0 0 5px #00ff88; }
-        .slider-container { display: flex; align-items: center; margin: 12px 0; background: rgba(255, 255, 255, 0.05); padding: 8px; border-radius: 8px; }
-        .slider-container label { width: 110px; font-size: 13px; color: #ddd; font-weight: 500; }
-        .slider { flex: 1; margin: 0 12px; height: 6px; background: #333; border-radius: 3px; outline: none; -webkit-appearance: none; }
-        .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #00ff88; border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
-        .slider:disabled { opacity: 0.5; cursor: not-allowed; }
-        .slider:disabled::-webkit-slider-thumb { cursor: not-allowed; background: #666; }
-        .value-display { width: 85px; text-align: right; font-size: 13px; color: #00ff88; font-weight: bold; }
-        .btn { padding: 12px 18px; background: linear-gradient(45deg, #00ff88, #00cc6a); color: #000; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.3s ease; flex: 1; }
-        .btn:hover { background: linear-gradient(45deg, #00cc6a, #009955); box-shadow: 0 0 15px rgba(0, 255, 136, 0.5); transform: translateY(-2px); }
-        .formula-box { background: linear-gradient(135deg, #2a2a2a, #1a1a1a); padding: 20px; border-radius: 10px; margin: 15px 0; border: 2px solid #444; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); }
-        .formula-box h4 { color: #00ff88; margin-top: 0; font-size: 1.1em; }
-        .formula { font-family: 'Courier New', monospace; color: #fff; font-size: 12px; line-height: 1.6; background: #000; padding: 10px; border-radius: 5px; border-left: 4px solid #00ff88; }
-        .info-display { position: absolute; top: 15px; left: 15px; background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 46, 0.9)); padding: 15px; border-radius: 10px; font-size: 13px; border: 1px solid #00ff88; box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); min-width: 210px; }
-        .info-display div { margin: 5px 0; display: flex; justify-content: space-between; }
-        .info-display .label { color: #ccc; }
-        .info-display .value { color: #00ff88; font-weight: bold; }
-        .efficiency-section { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 15px; padding: 25px; border: 2px solid #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
-        .efficiency-section h3 { color: #00ff88; text-align: center; font-size: 1.4em; margin-top: 0; text-shadow: 0 0 5px #00ff88; }
-        .table-container { max-height: 300px; overflow-y: auto; border-radius: 10px; border: 1px solid #333; }
+        .simulation-area { background: #0a0a1a; height: 500px; border: 3px solid #00ff88; border-radius: 15px; position: relative; overflow: hidden; box-shadow: 0 0 30px rgba(0,255,136,0.4); }
+        .control-group { margin-bottom: 20px; background: rgba(0,255,136,0.08); padding: 15px; border-radius: 10px; }
+        .control-group h3 { color: #00ff88; margin: 0 0 12px 0; font-size: 1.1em; }
+        .slider-container { display: flex; align-items: center; margin: 10px 0; background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px; }
+        .slider-container label { width: 115px; font-size: 12px; color: #ddd; }
+        .slider { flex: 1; margin: 0 10px; height: 6px; background: #333; border-radius: 3px; outline: none; -webkit-appearance: none; cursor: pointer; }
+        .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #00ff88; border-radius: 50%; cursor: pointer; box-shadow: 0 0 8px rgba(0,255,136,0.6); }
+        .slider:disabled { opacity: 0.4; }
+        .slider:disabled::-webkit-slider-thumb { background: #555; cursor: not-allowed; }
+        .value-display { width: 80px; text-align: right; font-size: 12px; color: #00ff88; font-weight: bold; }
+        .btn { padding: 10px 16px; background: linear-gradient(45deg,#00ff88,#00cc6a); color: #000; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.3s; flex: 1; }
+        .btn:hover { background: linear-gradient(45deg,#00cc6a,#009955); transform: translateY(-2px); }
+        .formula-box { background: #111; padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px solid #333; }
+        .formula-box h4 { color: #00ff88; margin: 0 0 10px 0; font-size: 1em; }
+        .formula { font-family: 'Courier New', monospace; color: #cfc; font-size: 11px; line-height: 1.8; background: #000; padding: 10px; border-radius: 5px; border-left: 3px solid #00ff88; }
+        .info-display { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.88); padding: 14px; border-radius: 10px; font-size: 12px; border: 1px solid #00ff88; min-width: 200px; z-index: 10; }
+        .info-display div { margin: 4px 0; display: flex; justify-content: space-between; gap: 10px; }
+        .info-display .lbl { color: #999; }
+        .info-display .val { color: #00ff88; font-weight: bold; }
+        .info-display .sep { border-top: 1px solid #00ff88; margin: 8px 0 6px; padding: 0; }
+        .info-display .val.big { font-size: 15px; color: #fff; }
+        .efficiency-section { background: linear-gradient(135deg,#1a1a2e,#16213e); border-radius: 15px; padding: 20px; border: 2px solid #00ff88; }
+        .efficiency-section h3 { color: #00ff88; text-align: center; font-size: 1.3em; margin-top: 0; }
+        .table-container { max-height: 260px; overflow-y: auto; border-radius: 8px; border: 1px solid #333; }
         .table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .table th { background: linear-gradient(135deg, #00ff88, #00cc6a); color: #000; padding: 12px 8px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 10; }
-        .table td { background: #1a1a2e; color: #fff; padding: 10px 8px; text-align: center; border-bottom: 1px solid #333; }
-        .table tbody tr:hover { background: rgba(0, 255, 136, 0.1); }
-        .table .efficiency-cell { color: #00ff88; font-weight: bold; font-size: 13px; }
-        .control-buttons { display: flex; gap: 15px; margin-top: 20px; justify-content: center; }
-        .light-ray { position: absolute; border-radius: 2px; animation: pulse 2s infinite; }
-        .incident-ray { background: linear-gradient(to bottom, transparent, #ffff00, #ffff00); box-shadow: 0 0 8px #ffff00; }
-        .refracted-ray { background: linear-gradient(to bottom, #00ff88, transparent); box-shadow: 0 0 8px #00ff88; }
-        .solar-panel { position: absolute; background: linear-gradient(135deg, #1e3c72, #2a5298, #1e3c72); border: 3px solid #00ff88; border-radius: 5px; box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
-        .panel-surface { position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #00ff88; box-shadow: 0 0 10px #00ff88; }
-        /* 層數疊加視覺 */
-        .layer-stack { position: absolute; border-radius: 3px; opacity: 0.7; }
-        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+        .table th { background: linear-gradient(135deg,#00ff88,#00cc6a); color: #000; padding: 10px 8px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 5; }
+        .table td { background: #1a1a2e; color: #fff; padding: 9px 8px; text-align: center; border-bottom: 1px solid #222; }
+        .table tbody tr:hover td { background: rgba(0,255,136,0.1); }
+        .efficiency-cell { color: #00ff88; font-weight: bold; }
+        .control-buttons { display: flex; gap: 12px; margin-top: 15px; }
+        #simCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🐑🐑光電板光學效率模擬實驗</h1>
-        <p>研究垂直入射(90°)與玻璃紙顏色及層數對太陽能板吸收效率的影響 (板厚: 3.2mm)</p>
-    </div>
-    <div class="main-container">
-        <div class="control-panel">
-            <div class="control-group">
-                <h3>🎛️ 控制變因</h3>
-                <div class="slider-container">
-                    <label>入射角度 θ₁:</label>
-                    <input type="range" class="slider" id="incidentAngle" min="90" max="90" value="90" disabled>
-                    <span class="value-display">90°</span>
-                </div>
-                <div class="slider-container">
-                    <label>空氣折射率 n₁:</label>
-                    <input type="range" class="slider" id="n1" min="100" max="150" value="100">
-                    <span class="value-display" id="n1Value">1.00</span>
-                </div>
-                <div class="slider-container">
-                    <label>材料折射率 n₂:</label>
-                    <input type="range" class="slider" id="n2" min="396" max="396" value="396" disabled>
-                    <span class="value-display">3.96</span>
-                </div>
-                <div class="slider-container">
-                    <label>材料厚度:</label>
-                    <input type="range" class="slider" id="thickness" min="3200" max="3200" value="3200" disabled>
-                    <span class="value-display">3.2mm</span>
-                </div>
+<div class="header">
+    <h1>🐑🐑 光電板光學效率模擬實驗</h1>
+    <p>研究玻璃紙顏色與層數對太陽能板吸收效率的影響（比爾朗伯定律 + 菲涅爾公式）</p>
+</div>
+<div class="main-container">
+    <div class="control-panel">
+        <div class="control-group">
+            <h3>🎛️ 控制變因（固定）</h3>
+            <div class="slider-container">
+                <label>入射角度 θ₁</label>
+                <input type="range" class="slider" disabled value="90" min="90" max="90">
+                <span class="value-display">90°</span>
             </div>
-            <div class="control-group">
-                <h3>⚙️ 操縱變因</h3>
-                <div class="slider-container">
-                    <label>表面粗糙度:</label>
-                    <input type="range" class="slider" id="surfaceRoughness" min="0" max="100" value="0" step="5">
-                    <span class="value-display" id="surfaceRoughnessValue">0%</span>
-                </div>
-                <div class="slider-container">
-                    <label>抗反射塗層:</label>
-                    <input type="range" class="slider" id="arCoating" min="0" max="100" value="0" step="5">
-                    <span class="value-display" id="arCoatingValue">0%</span>
-                </div>
-                <!-- 新增：玻璃紙層數 -->
-                <div class="slider-container">
-                    <label>玻璃紙層數 n:</label>
-                    <input type="range" class="slider" id="layers" min="1" max="10" value="1" step="1">
-                    <span class="value-display" id="layersValue">1 層</span>
-                </div>
-                <div class="slider-container">
-                    <label>玻璃紙顏色:</label>
-                    <select class="slider" id="glassColor" style="height:30px;background:#333;color:#fff;border:1px solid #00ff88;border-radius:5px;">
-                        <option value="clear">透明(100%)</option>
-                        <option value="lightBlue">淺藍(85%)</option>
-                        <option value="green">綠色(75%)</option>
-                        <option value="yellow">黃色(70%)</option>
-                        <option value="orange">橙色(60%)</option>
-                        <option value="red">紅色(55%)</option>
-                        <option value="darkBlue">深藍(45%)</option>
-                        <option value="purple">紫色(40%)</option>
-                        <option value="brown">棕色(35%)</option>
-                        <option value="gray">灰色(25%)</option>
-                    </select>
-                    <span class="value-display" id="glassColorValue">透明</span>
-                </div>
+            <div class="slider-container">
+                <label>空氣折射率 n₁</label>
+                <input type="range" class="slider" id="n1" min="100" max="150" value="100">
+                <span class="value-display" id="n1Val">1.00</span>
             </div>
-            <div class="formula-box">
-                <h4>📐 光學效率公式</h4>
-                <div class="formula">垂直入射: θ₁=90°, θ₂=90°
-菲涅爾反射率: R = ((n₁-n₂)/(n₁+n₂))²
-比爾朗伯（n層）: T_n = T_單層ⁿ
-光學效率: η = T_n × (1 - R)</div>
+            <div class="slider-container">
+                <label>材料折射率 n₂</label>
+                <input type="range" class="slider" disabled value="396" min="396" max="396">
+                <span class="value-display">3.96</span>
+            </div>
+            <div class="slider-container">
+                <label>材料厚度</label>
+                <input type="range" class="slider" disabled value="3200" min="3200" max="3200">
+                <span class="value-display">3.2 mm</span>
             </div>
         </div>
-        <div class="simulation-container">
-            <div class="simulation-area" id="simulationArea">
-                <div class="info-display">
-                    <div><span class="label">入射角θ₁:</span><span class="value">90.0°</span></div>
-                    <div><span class="label">折射角θ₂:</span><span class="value">90.0°</span></div>
-                    <div><span class="label">材料厚度:</span><span class="value">3.2mm</span></div>
-                    <div><span class="label">玻璃紙層數:</span><span class="value" id="displayLayers">1</span></div>
-                    <div><span class="label">單層透光率:</span><span class="value" id="displayGlassTransmission">100%</span></div>
-                    <div><span class="label">n層後透光率:</span><span class="value" id="displayStackedTransmission">100%</span></div>
-                    <div><span class="label">反射率R:</span><span class="value" id="displayReflection">-</span></div>
-                    <div><span class="label">穿透率T:</span><span class="value" id="displayTransmission">-</span></div>
-                    <div style="border-top:1px solid #00ff88;margin-top:8px;padding-top:8px;"><span class="label">光學效率η:</span><span class="value" id="displayEfficiency" style="font-size:16px;">-</span></div>
-                </div>
+        <div class="control-group">
+            <h3>⚙️ 操縱變因</h3>
+            <div class="slider-container">
+                <label>表面粗糙度</label>
+                <input type="range" class="slider" id="roughness" min="0" max="100" value="0" step="5">
+                <span class="value-display" id="roughnessVal">0%</span>
             </div>
-            <div class="efficiency-section">
-                <h3>📊 數據記錄表</h3>
-                <div class="table-container">
-                    <table class="table">
-                        <thead><tr><th>序號</th><th>玻璃顏色</th><th>層數n</th><th>單層透光率(%)</th><th>n層透光率(%)</th><th>反射率(%)</th><th>光學效率(%)</th></tr></thead>
-                        <tbody id="efficiencyTableBody"></tbody>
-                    </table>
-                </div>
-                <div class="control-buttons">
-                    <button class="btn" id="recordData">📝 記錄數據</button>
-                    <button class="btn" id="autoScan">🔄 自動掃描顏色</button>
-                    <button class="btn" id="clearData">🗑️ 清除數據</button>
-                </div>
+            <div class="slider-container">
+                <label>抗反射塗層</label>
+                <input type="range" class="slider" id="coating" min="0" max="100" value="0" step="5">
+                <span class="value-display" id="coatingVal">0%</span>
+            </div>
+            <div class="slider-container">
+                <label>玻璃紙層數 n</label>
+                <input type="range" class="slider" id="layers" min="1" max="10" value="1" step="1">
+                <span class="value-display" id="layersVal">1 層</span>
+            </div>
+            <div class="slider-container">
+                <label>玻璃紙顏色</label>
+                <select class="slider" id="color" style="height:30px;background:#1a1a2e;color:#fff;border:1px solid #00ff88;border-radius:5px;">
+                    <option value="clear">透明 (100%)</option>
+                    <option value="lightBlue">淺藍 (85%)</option>
+                    <option value="green">綠色 (75%)</option>
+                    <option value="yellow">黃色 (70%)</option>
+                    <option value="orange">橙色 (60%)</option>
+                    <option value="red">紅色 (55%)</option>
+                    <option value="darkBlue">深藍 (45%)</option>
+                    <option value="purple">紫色 (40%)</option>
+                    <option value="brown">棕色 (35%)</option>
+                    <option value="gray">灰色 (25%)</option>
+                </select>
+                <span class="value-display" id="colorVal">透明</span>
             </div>
         </div>
-    </div>
-    <script>
-        class SolarPanelSimulation {
-            constructor() { this.dataRecords = []; this.isAutoScanning = false; this.init(); }
-            init() { this.setupEventListeners(); this.updateSimulation(); }
-            setupEventListeners() {
-                ['n1','surfaceRoughness','arCoating','layers'].forEach(id => document.getElementById(id).addEventListener('input',()=>this.updateSimulation()));
-                document.getElementById('glassColor').addEventListener('change',()=>this.updateSimulation());
-                document.getElementById('recordData').addEventListener('click',()=>this.recordData());
-                document.getElementById('autoScan').addEventListener('click',()=>this.autoScan());
-                document.getElementById('clearData').addEventListener('click',()=>this.clearData());
-            }
-            getParameters() { 
-                return {
-                    angle:90,
-                    n1:parseFloat(document.getElementById('n1').value)/100,
-                    n2:3.96,
-                    thickness:3.2,
-                    roughness:parseFloat(document.getElementById('surfaceRoughness').value),
-                    coating:parseFloat(document.getElementById('arCoating').value),
-                    layers:parseInt(document.getElementById('layers').value),
-                    glassColor:document.getElementById('glassColor').value
-                }; 
-            }
-            updateDisplayValues(p) {
-                document.getElementById('n1Value').textContent=p.n1.toFixed(2);
-                document.getElementById('surfaceRoughnessValue').textContent=p.roughness+'%';
-                document.getElementById('arCoatingValue').textContent=p.coating+'%';
-                document.getElementById('layersValue').textContent=p.layers+' 層';
-                const c={'clear':'透明','lightBlue':'淺藍','green':'綠色','yellow':'黃色','orange':'橙色','red':'紅色','darkBlue':'深藍','purple':'紫色','brown':'棕色','gray':'灰色'};
-                document.getElementById('glassColorValue').textContent=c[p.glassColor];
-            }
-            calculateOptics(p) {
-                const gt={'clear':1,'lightBlue':.85,'green':.75,'yellow':.7,'orange':.6,'red':.55,'darkBlue':.45,'purple':.4,'brown':.35,'gray':.25};
-                const gtc=gt[p.glassColor];
+        <div class="formula-box">
+            <h4>📐 核心公式</h4>
+            <div class="formula">菲涅爾反射率:
+R = ((n₁-n₂)/(n₁+n₂))²
+
+比爾朗伯（n 層）:
+T_n = T_單層ⁿ
+
+光學效率:
+η = T_n × (1 - R)</div>
+</div>
+</div>
 
 ```
-            // 比爾朗伯：n層後透光率 = 單層透光率^n
-            const stackedT = Math.pow(gtc, p.layers);
-            
-            // 菲涅爾反射率
-            let rc=Math.pow((p.n1-p.n2)/(p.n1+p.n2),2);
-            if(p.roughness>0) rc*=(1-p.roughness/100*.3);
-            if(p.coating>0) rc*=(1-p.coating/100*.8);
-            rc=Math.max(0,Math.min(1,rc));
-            const tc=1-rc;
-            
-            // 光學效率 = n層後透光率 × 菲涅爾穿透率
-            let eff=stackedT*tc*100;
-            
-            return {
-                reflectionCoeff:rc,
-                transmissionCoeff:tc,
-                glassTransmissionCoeff:gtc,
-                stackedTransmissionCoeff:stackedT,
-                efficiency:Math.max(0,Math.min(100,eff))
-            };
-        }
-        updateSimulation() {
-            const p=this.getParameters(),r=this.calculateOptics(p);
-            this.updateDisplayValues(p);
-            document.getElementById('displayLayers').textContent=p.layers+'層';
-            document.getElementById('displayGlassTransmission').textContent=(r.glassTransmissionCoeff*100).toFixed(0)+'%';
-            document.getElementById('displayStackedTransmission').textContent=(r.stackedTransmissionCoeff*100).toFixed(1)+'%';
-            document.getElementById('displayReflection').textContent=(r.reflectionCoeff*100).toFixed(1)+'%';
-            document.getElementById('displayTransmission').textContent=(r.transmissionCoeff*100).toFixed(1)+'%';
-            document.getElementById('displayEfficiency').textContent=r.efficiency.toFixed(1)+'%';
-            this.updateVisualization(r,p);
-        }
-        updateVisualization(r,p) {
-            const a=document.getElementById('simulationArea');
-            a.querySelectorAll('.light-ray,.solar-panel,.layer-stack').forEach(e=>e.remove());
-            const cx=300,cy=260,pw=180,ph=60,gc=this.getGlassPanelColor(p.glassColor);
+<div class="simulation-container">
+    <div class="simulation-area" id="simArea">
+        <canvas id="simCanvas"></canvas>
+        <div class="info-display">
+            <div><span class="lbl">玻璃紙層數</span><span class="val" id="dLayers">1 層</span></div>
+            <div><span class="lbl">單層透光率</span><span class="val" id="dSingle">100%</span></div>
+            <div><span class="lbl">n 層後透光率</span><span class="val" id="dStacked">100%</span></div>
+            <div><span class="lbl">反射率 R</span><span class="val" id="dR">—</span></div>
+            <div><span class="lbl">穿透率 T</span><span class="val" id="dT">—</span></div>
+            <div class="sep"></div>
+            <div><span class="lbl">光學效率 η</span><span class="val big" id="dEta">—</span></div>
+        </div>
+    </div>
+    <div class="efficiency-section">
+        <h3>📊 數據記錄表</h3>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr><th>#</th><th>顏色</th><th>層數 n</th><th>單層透光率</th><th>n層透光率</th><th>反射率 R</th><th>光學效率 η</th></tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+        <div class="control-buttons">
+            <button class="btn" id="btnRecord">📝 記錄數據</button>
+            <button class="btn" id="btnScan">🔄 自動掃描</button>
+            <button class="btn" id="btnClear">🗑️ 清除</button>
+        </div>
+    </div>
+</div>
+```
 
-            // 畫疊層玻璃紙（每層一個薄條，從上往下疊）
-            const layerH = 10;
-            const layerGap = 4;
-            const totalLayerH = p.layers * (layerH + layerGap);
-            const layerStartY = cy - ph/2 - totalLayerH - 10;
+</div>
 
-            for(let i=0;i<p.layers;i++){
-                const lyr=document.createElement('div');
-                lyr.className='layer-stack';
-                lyr.style.left=(cx-pw/2+10)+'px';
-                lyr.style.top=(layerStartY + i*(layerH+layerGap))+'px';
-                lyr.style.width=(pw-20)+'px';
-                lyr.style.height=layerH+'px';
-                lyr.style.background=gc.surface;
-                lyr.style.opacity=(0.5+0.5*r.glassTransmissionCoeff).toFixed(2);
-                lyr.style.border='1px solid rgba(255,255,255,0.3)';
-                a.appendChild(lyr);
-            }
+<script>
+var GT = {clear:1,lightBlue:.85,green:.75,yellow:.7,orange:.6,red:.55,darkBlue:.45,purple:.4,brown:.35,gray:.25};
+var LABEL = {clear:'透明',lightBlue:'淺藍',green:'綠色',yellow:'黃色',orange:'橙色',red:'紅色',darkBlue:'深藍',purple:'紫色',brown:'棕色',gray:'灰色'};
+var HEX = {clear:'#aaffdd',lightBlue:'#87CEEB',green:'#32CD32',yellow:'#FFD700',orange:'#FF8C00',red:'#FF4444',darkBlue:'#4169E1',purple:'#9932CC',brown:'#D2691E',gray:'#A9A9A9'};
 
-            // 太陽能板
-            const pnl=document.createElement('div');
-            pnl.className='solar-panel';
-            pnl.style.left=(cx-pw/2)+'px';
-            pnl.style.top=(cy-ph/2)+'px';
-            pnl.style.width=pw+'px';
-            pnl.style.height=ph+'px';
-            pnl.style.background=`linear-gradient(135deg,${gc.primary},${gc.secondary},${gc.primary})`;
-            const sf=document.createElement('div');
-            sf.className='panel-surface';
-            sf.style.background=gc.surface;
-            pnl.appendChild(sf);
-            a.appendChild(pnl);
+var canvas = document.getElementById('simCanvas');
+var ctx = canvas.getContext('2d');
+var records = [];
+var lastR = null;
+var rayOff = 0;
+var scanning = false;
 
-            // 入射光線
-            this.createVerticalRay(a,cx,30,layerStartY-30,'incident-ray');
-            // 穿透光線（強度隨效率降低）
-            const rayOpacity = Math.max(0.1, r.stackedTransmissionCoeff);
-            this.createVerticalColoredRay(a,cx,cy+ph/2,100,'refracted-ray',gc.ray,rayOpacity);
-        }
-        createVerticalRay(c,x,y,l,cn) {
-            const r=document.createElement('div');
-            r.className=`light-ray ${cn}`;
-            r.style.left=(x-2)+'px';
-            r.style.top=y+'px';
-            r.style.width='4px';
-            r.style.height=l+'px';
-            c.appendChild(r);
-        }
-        createVerticalColoredRay(c,x,y,l,cn,col,opacity=1) {
-            const r=document.createElement('div');
-            r.className=`light-ray ${cn}`;
-            r.style.left=(x-2)+'px';
-            r.style.top=y+'px';
-            r.style.width='4px';
-            r.style.height=l+'px';
-            r.style.background=`linear-gradient(to bottom,${col},transparent)`;
-            r.style.boxShadow=`0 0 8px ${col}`;
-            r.style.opacity=opacity;
-            c.appendChild(r);
-        }
-        recordData() {
-            const p=this.getParameters(),r=this.calculateOptics(p);
-            const gc={'clear':'透明','lightBlue':'淺藍','green':'綠色','yellow':'黃色','orange':'橙色','red':'紅色','darkBlue':'深藍','purple':'紫色','brown':'棕色','gray':'灰色'};
-            this.dataRecords.push({
-                id:this.dataRecords.length+1,
-                glassColor:gc[p.glassColor],
-                layers:p.layers,
-                transmission:r.glassTransmissionCoeff*100,
-                stackedTransmission:r.stackedTransmissionCoeff*100,
-                reflection:r.reflectionCoeff*100,
-                efficiency:r.efficiency
-            });
-            this.updateTable();
-        }
-        updateTable() {
-            const tb=document.getElementById('efficiencyTableBody');
-            tb.innerHTML='';
-            this.dataRecords.forEach(rec=>{
-                const row=document.createElement('tr');
-                row.innerHTML=`<td>${rec.id}</td><td style="color:${this.getGlassColorCode(rec.glassColor)};">${rec.glassColor}</td><td>${rec.layers}</td><td>${rec.transmission.toFixed(0)}</td><td>${rec.stackedTransmission.toFixed(1)}</td><td>${rec.reflection.toFixed(1)}</td><td class="efficiency-cell">${rec.efficiency.toFixed(1)}</td>`;
-                tb.appendChild(row);
-            });
-        }
-        getGlassColorCode(cn) {
-            const cm={'透明':'#fff','淺藍':'#87CEEB','綠色':'#32CD32','黃色':'#FFD700','橙色':'#FF8C00','紅色':'#FF6347','深藍':'#4682B4','紫色':'#9932CC','棕色':'#D2691E','灰色':'#A9A9A9'};
-            return cm[cn]||'#fff';
-        }
-        getGlassPanelColor(k) {
-            const cm={
-                'clear':{primary:'#1e3c72',secondary:'#2a5298',surface:'#00ff88',ray:'#00ff88'},
-                'lightBlue':{primary:'#4682B4',secondary:'#87CEEB',surface:'#87CEEB',ray:'#87CEEB'},
-                'green':{primary:'#228B22',secondary:'#32CD32',surface:'#32CD32',ray:'#32CD32'},
-                'yellow':{primary:'#DAA520',secondary:'#FFD700',surface:'#FFD700',ray:'#FFD700'},
-                'orange':{primary:'#FF6347',secondary:'#FF8C00',surface:'#FF8C00',ray:'#FF8C00'},
-                'red':{primary:'#B22222',secondary:'#FF6347',surface:'#FF6347',ray:'#FF6347'},
-                'darkBlue':{primary:'#191970',secondary:'#4682B4',surface:'#4682B4',ray:'#4682B4'},
-                'purple':{primary:'#4B0082',secondary:'#9932CC',surface:'#9932CC',ray:'#9932CC'},
-                'brown':{primary:'#8B4513',secondary:'#D2691E',surface:'#D2691E',ray:'#D2691E'},
-                'gray':{primary:'#2F4F4F',secondary:'#A9A9A9',surface:'#A9A9A9',ray:'#A9A9A9'}
-            };
-            return cm[k]||cm['clear'];
-        }
-        autoScan() {
-            if(this.isAutoScanning)return;
-            this.isAutoScanning=true;
-            const btn=document.getElementById('autoScan');
-            btn.textContent='⏳ 掃描中...';
-            const cols=['clear','lightBlue','green','yellow','orange','red','darkBlue','purple','brown','gray'];
-            let i=0;
-            const iv=setInterval(()=>{
-                document.getElementById('glassColor').value=cols[i];
-                this.updateSimulation();
-                this.recordData();
-                i++;
-                if(i>=cols.length){clearInterval(iv);this.isAutoScanning=false;btn.textContent='🔄 自動掃描顏色';}
-            },500);
-        }
-        clearData() { this.dataRecords=[]; this.updateTable(); }
+function resize() {
+    var area = document.getElementById('simArea');
+    canvas.width = area.clientWidth;
+    canvas.height = area.clientHeight;
+}
+
+function calcOptics(n1, roughness, coating, layers, key) {
+    var gt = GT[key];
+    var stacked = Math.pow(gt, layers);
+    var R = Math.pow((n1 - 3.96) / (n1 + 3.96), 2);
+    if (roughness > 0) R *= (1 - roughness / 100 * 0.3);
+    if (coating > 0)   R *= (1 - coating  / 100 * 0.8);
+    R = Math.max(0, Math.min(1, R));
+    var T = 1 - R;
+    var eta = Math.max(0, Math.min(100, stacked * T * 100));
+    return {gt: gt, stacked: stacked, R: R, T: T, eta: eta};
+}
+
+function drawScene(key, layers, res) {
+    var W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // background
+    var bg = ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#050510'); bg.addColorStop(1,'#0a0a20');
+    ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+    var cx = W * 0.55;
+    var panelY = H * 0.62;
+    var pW = 200, pH = 55;
+    var hex = HEX[key];
+
+    // glass layers
+    var lH = 12, lG = 5;
+    var totH = layers * (lH + lG);
+    var lTop = panelY - totH - 25;
+
+    for (var i = 0; i < layers; i++) {
+        var ly = lTop + i * (lH + lG);
+        ctx.save();
+        ctx.globalAlpha = 0.5 + 0.4 * GT[key];
+        ctx.fillStyle = hex;
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(cx - pW/2 + 8, ly, pW - 16, lH, 3);
+        ctx.fill(); ctx.stroke();
+        ctx.restore();
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.font = '10px Segoe UI';
+        ctx.textAlign = 'left';
+        ctx.fillText('層' + (i+1), cx + pW/2 - 28, ly + lH - 2);
     }
-    window.onload=()=>new SolarPanelSimulation();
+
+    // solar panel body
+    var pg = ctx.createLinearGradient(cx-pW/2, panelY, cx+pW/2, panelY+pH);
+    pg.addColorStop(0,'#1e3c72'); pg.addColorStop(0.5,'#2a5298'); pg.addColorStop(1,'#1e3c72');
+    ctx.fillStyle = pg;
+    ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(cx-pW/2, panelY, pW, pH, 5);
+    ctx.fill(); ctx.stroke();
+
+    // top glow line
+    ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 4;
+    ctx.shadowColor = '#00ff88'; ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.moveTo(cx-pW/2, panelY+2); ctx.lineTo(cx+pW/2, panelY+2); ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // grid lines
+    ctx.strokeStyle = 'rgba(0,255,136,0.2)'; ctx.lineWidth = 1;
+    for (var xi = 1; xi < 4; xi++) {
+        ctx.beginPath();
+        ctx.moveTo(cx - pW/2 + xi*pW/4, panelY+5);
+        ctx.lineTo(cx - pW/2 + xi*pW/4, panelY+pH-5);
+        ctx.stroke();
+    }
+
+    // incident ray (animated dashes)
+    var rBot = lTop - 5, rTop = 10;
+    var dLen = 16, gLen = 10, period = dLen + gLen;
+    var nDash = Math.ceil((rBot - rTop) / period) + 2;
+    ctx.lineWidth = 3; ctx.shadowColor = '#ffff00'; ctx.shadowBlur = 8;
+    for (var d = 0; d < nDash; d++) {
+        var y0 = rTop + d * period - (rayOff % period);
+        var y1 = Math.min(y0 + dLen, rBot);
+        if (y1 < rTop || y0 > rBot) continue;
+        ctx.strokeStyle = 'rgba(255,255,0,0.85)';
+        ctx.beginPath();
+        ctx.moveTo(cx, Math.max(y0, rTop));
+        ctx.lineTo(cx, y1);
+        ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+
+    // refracted ray
+    var rGrad = ctx.createLinearGradient(0, panelY+pH, 0, H-15);
+    rGrad.addColorStop(0, hex + 'cc'); rGrad.addColorStop(1, hex + '00');
+    ctx.strokeStyle = rGrad; ctx.lineWidth = 4;
+    ctx.globalAlpha = Math.max(0.08, res.stacked);
+    ctx.shadowColor = hex; ctx.shadowBlur = 14;
+    ctx.beginPath(); ctx.moveTo(cx, panelY+pH); ctx.lineTo(cx, H-15); ctx.stroke();
+    ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+
+    // efficiency display top right
+    var etaCol = res.eta > 60 ? '#00ff88' : res.eta > 30 ? '#FFD700' : '#FF4444';
+    ctx.font = 'bold 38px Segoe UI';
+    ctx.fillStyle = etaCol; ctx.shadowColor = etaCol; ctx.shadowBlur = 18;
+    ctx.textAlign = 'right';
+    ctx.fillText(res.eta.toFixed(1) + '%', W - 18, 52);
+    ctx.font = '13px Segoe UI'; ctx.fillStyle = '#999'; ctx.shadowBlur = 0;
+    ctx.fillText('光學效率 η', W - 18, 70);
+    ctx.textAlign = 'left';
+
+    // labels
+    ctx.fillStyle = '#ffff88'; ctx.font = '13px Segoe UI';
+    ctx.fillText('☀ 入射光', cx + 10, 28);
+    ctx.fillStyle = '#00ff88';
+    ctx.fillText('太陽能板', cx - pW/2, panelY + pH + 18);
+    if (layers > 0) {
+        ctx.fillStyle = hex; ctx.font = 'bold 12px Segoe UI';
+        ctx.fillText('玻璃紙 ×' + layers + '  (' + LABEL[key] + ')', cx - pW/2, lTop - 6);
+    }
+}
+
+function animate() {
+    rayOff = (rayOff + 0.7) % 26;
+    if (lastR) drawScene(lastR.key, lastR.layers, lastR.res);
+    requestAnimationFrame(animate);
+}
+
+function update() {
+    var n1       = parseFloat(document.getElementById('n1').value) / 100;
+    var roughness= parseFloat(document.getElementById('roughness').value);
+    var coating  = parseFloat(document.getElementById('coating').value);
+    var layers   = parseInt(document.getElementById('layers').value);
+    var key      = document.getElementById('color').value;
+
+    document.getElementById('n1Val').textContent       = n1.toFixed(2);
+    document.getElementById('roughnessVal').textContent= roughness + '%';
+    document.getElementById('coatingVal').textContent  = coating + '%';
+    document.getElementById('layersVal').textContent   = layers + ' 層';
+    document.getElementById('colorVal').textContent    = LABEL[key];
+
+    var res = calcOptics(n1, roughness, coating, layers, key);
+    document.getElementById('dLayers').textContent  = layers + ' 層';
+    document.getElementById('dSingle').textContent  = (res.gt * 100).toFixed(0) + '%';
+    document.getElementById('dStacked').textContent = (res.stacked * 100).toFixed(1) + '%';
+    document.getElementById('dR').textContent       = (res.R * 100).toFixed(1) + '%';
+    document.getElementById('dT').textContent       = (res.T * 100).toFixed(1) + '%';
+    document.getElementById('dEta').textContent     = res.eta.toFixed(1) + '%';
+
+    lastR = {key: key, layers: layers, res: res};
+}
+
+function recordData() {
+    if (!lastR) return;
+    var r = lastR;
+    records.push({
+        id: records.length + 1,
+        label: LABEL[r.key], hex: HEX[r.key],
+        layers: r.layers,
+        single: (r.res.gt * 100).toFixed(0),
+        stacked: (r.res.stacked * 100).toFixed(1),
+        R: (r.res.R * 100).toFixed(1),
+        eta: r.res.eta.toFixed(1)
+    });
+    renderTable();
+}
+
+function renderTable() {
+    var tb = document.getElementById('tbody');
+    tb.innerHTML = '';
+    records.forEach(function(rec) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + rec.id + '</td>' +
+            '<td><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + rec.hex + ';margin-right:6px;vertical-align:middle;border:1px solid #555;"></span>' + rec.label + '</td>' +
+            '<td>' + rec.layers + '</td>' +
+            '<td>' + rec.single + '%</td>' +
+            '<td>' + rec.stacked + '%</td>' +
+            '<td>' + rec.R + '%</td>' +
+            '<td class="efficiency-cell">' + rec.eta + '%</td>';
+        tb.appendChild(tr);
+    });
+}
+
+function autoScan() {
+    if (scanning) return;
+    scanning = true;
+    var btn = document.getElementById('btnScan');
+    btn.textContent = '⏳ 掃描中...';
+    var keys = Object.keys(GT);
+    var i = 0;
+    var iv = setInterval(function() {
+        document.getElementById('color').value = keys[i];
+        update(); recordData(); i++;
+        if (i >= keys.length) {
+            clearInterval(iv); scanning = false;
+            btn.textContent = '🔄 自動掃描';
+        }
+    }, 400);
+}
+
+document.getElementById('n1').addEventListener('input', update);
+document.getElementById('roughness').addEventListener('input', update);
+document.getElementById('coating').addEventListener('input', update);
+document.getElementById('layers').addEventListener('input', update);
+document.getElementById('color').addEventListener('change', update);
+document.getElementById('btnRecord').addEventListener('click', recordData);
+document.getElementById('btnScan').addEventListener('click', autoScan);
+document.getElementById('btnClear').addEventListener('click', function() { records = []; renderTable(); });
+
+window.addEventListener('resize', function() { resize(); });
+resize();
+update();
+animate();
 </script>
-```
 
 </body>
 </html>
